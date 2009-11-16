@@ -22,6 +22,8 @@ It features a full options page where you can hide any of the menus or switch th
 
 To upgrade from a previous version of this plugin, delete the entire folder and files from the previous version of the plugin and then follow the installation instructions below.
 
+Alternatively, you can have WordPress upgrade it for you automatically via the Plugin Admin Page.
+
 ###Installing The Plugin###
 
 Extract all files from the ZIP file, making sure to keep the file structure intact, and then upload the plugin's folder to `/wp-content/plugins/`.
@@ -54,12 +56,12 @@ Install normally, but move **only** the `wordpress-admin-bar-improved.php` to th
 
 = It's not working! =
 
-If it's not working for you, first try switching to the default WordPress theme. If that makes it show up, then you know it's an issue with your regular theme. Make sure your theme has `<?php wp_head(); ?>` in inside it's `<head>` in it's `header.php` file and `<?php wp_footer(); ?>` somewhere in it's `footer.php` file, like before `</body>`.
+If it's not working for you, first try switching to the default WordPress theme. If that makes it show up, then you know it's an issue with your regular theme. Make sure your theme has `<?php wp_head(); ?>` inside it's `<head>` of it's `header.php` file and `<?php wp_footer(); ?>` somewhere in it's `footer.php` file, like before `</body>`.
 
 == Screenshots ==
 
-1. Logged out Users
-2. Logged in Users
+1. How the plugin appears for logged out Users
+2. How the Plugin appears for logged in Users
 
 == ChangeLog ==
 
