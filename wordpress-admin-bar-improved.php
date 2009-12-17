@@ -136,8 +136,8 @@ class WPAdminBar {
 
 		// Register the hooks to display the admin bar
 		if ( 1 == $this->settings['show_site'] ) {
-			add_action( 'wp_head', array(&$this, 'OutputCSS') );
-			add_action( 'wp_footer', array(&$this, 'OutputMenuBar') );
+			add_action( 'thesis_hook_after_header', array(&$this, 'OutputCSS') );
+			add_action( 'thesis_hook_after_header', array(&$this, 'OutputMenuBar') );
 		}
 		if ( 1 == $this->settings['show_admin'] ) {
 			add_action( 'admin_head', array(&$this, 'OutputCSS') );
@@ -370,7 +370,7 @@ class WPAdminBar {
 
 	// Generate and output the HTML for the admin menu
 	function OutputMenuBar() {
-		$this->SetupMenu();
+		$this->SetupMenu(); 
 ?>
 
 <!-- Start WordPress Admin Bar -->
