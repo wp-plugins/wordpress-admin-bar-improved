@@ -4,7 +4,7 @@ Donate link: http://ifbdesign.com/donate/
 Tags: admin, bar, top, login
 Requires at least: 2.7
 Tested up to: 2.8
-Stable tag: trunk
+Stable tag: 1.0.4
 
 An upload-and-activate plugin that creates an admin bar at the top of your site like the one at WordPress.com. It allows users to log in from any page.
 
