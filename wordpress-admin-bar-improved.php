@@ -5,7 +5,7 @@
 Plugin Name:  WordPress Admin Bar Improved
 Plugin URI:   http://mactimize.com/?p=263
 Description:  Creates an admin bar inspired by the one at <a href="http://wordpress.com/">WordPress.com</a>. Credits for the base of this plugin goes to Viper007Bond.
-Version:      1.0.3
+Version:      1.0.6
 Author:       IFBDesign - Don Gilbert
 Author URI:   http://ifbdesign.com
 
@@ -29,7 +29,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **************************************************************************/
 
 class WPAdminBar {
-	var $version = '1.0.3';
+	var $version = '1.0.6';
 	var $settings = array();
 	var $defaults = array();
 	var $themes = array();
