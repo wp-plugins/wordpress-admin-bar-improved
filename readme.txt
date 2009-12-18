@@ -69,10 +69,13 @@ If it's not working for you, first try switching to the default WordPress theme.
 2. How the Plugin appears for logged in Users
 
 == ChangeLog ==
-
-**Version 1.0.4**
+**Version 1.0.6**
 
 * Updated the readme.txt and some code. (Made it cleaner.)
+* Version 2.0 ToDo
+* Remove templating "feature" - would like to make the look more static and not customizable - just because by default most themes will kill the look of the login form.
+* Various other fixes - please suggest - email me on it.
+
 
 **Version 1.0.3**
 
