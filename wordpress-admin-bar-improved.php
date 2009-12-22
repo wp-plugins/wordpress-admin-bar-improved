@@ -1,11 +1,11 @@
-<?php /*
-
+<?php
+/*
 **************************************************************************
 
 Plugin Name:  WordPress Admin Bar Improved
 Plugin URI:   http://mactimize.com/?p=263
 Description:  Creates an admin bar inspired by the one at <a href="http://wordpress.com/">WordPress.com</a>. Credits for the base of this plugin goes to Viper007Bond.
-Version:      1.0.6
+Version:      1.0.7
 Author:       IFBDesign - Don Gilbert
 Author URI:   http://ifbdesign.com
 
@@ -28,8 +28,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 **************************************************************************/
 
-class WPAdminBar {
-	var $version = '1.0.6';
+class WPAdminBarImproved {
+	var $version = '1.0.7';
 	var $settings = array();
 	var $defaults = array();
 	var $themes = array();
@@ -38,16 +38,18 @@ class WPAdminBar {
 	var $folder;
 
 	// Plugin initialization
-	function WPAdminBar() {
+	function WPAdminBarImproved() {
 		// This version only supports WP 2.7+
-		if ( !function_exists('wp_list_comments') ) return;
+		if ( !function_exists('wp_list_comments') )
+			return;
 
 		// Don't do anything within the media upload iframe
-		if ( 'media-upload.php' == basename( $_SERVER['PHP_SELF'] ) ) return;
+		if ( 'media-upload.php' == basename( $_SERVER['PHP_SELF'] ) )
+			return;
 
 		// Load up the localization file if we're using WordPress in a different language
 		// Place it in this plugin's folder and name it "wordpress-admin-bar-improved-[value in wp-config].mo"
-		load_plugin_textdomain( 'wordpress-admin-bar-improved', FALSE, '/wordpress-admin-bar-improved' );
+		load_plugin_textdomain( 'wordpress-admin-bar-improved', FALSE, '/wordpress-admin-bar-improved/localization' );
 
 		// Register the admin settings page hooks
 		add_action( 'admin_menu', array(&$this, 'AddAdminMenu') );
@@ -57,17 +59,17 @@ class WPAdminBar {
 		add_action( 'admin_post_wordpress-admin-bar-improved', array(&$this, 'HandleFormPOST') );
 
 		// Modify the menu array a little to make it better
-		add_filter( 'wpabar_menuitems', array(&$this, 'AddSingleEditLink') );
-		add_filter( 'wpabar_menuitems', array(&$this, 'CommentsAwaitingModCount') );
-		add_filter( 'wpabar_menuitems', array(&$this, 'PluginsUpdateCount') );
+		add_filter( 'wpabarimp_menuitems', array(&$this, 'AddSingleEditLink') );
+		add_filter( 'wpabarimp_menuitems', array(&$this, 'CommentsAwaitingModCount') );
+		add_filter( 'wpabarimp_menuitems', array(&$this, 'PluginsUpdateCount') );
 
 		$this->folder = plugins_url('wordpress-admin-bar-improved');
 
 		// Create the list of default themes
-		// Theme authors: use wpabar_register_theme() instead of the "wpabar_themes" filter
-		$this->themes = apply_filters( 'wpabar_themes', array(
+		// Theme authors: use wpabarimp_register_theme() instead of the "wpabarimp_themes" filter
+		$this->themes = apply_filters( 'wpabarimp_themes', array(
 			'wordpress_grey' => array(
-				'name' => __( 'WordPress Grey', 'wordprwess-admin-bar-improved' ),
+				'name' => __( 'WordPress Grey', 'wordpress-admin-bar-improved' ),
 				'css' => $this->folder . '/themes/grey/grey.css?ver=' . $this->version,
 			),
 			'wordpress_blue' => array(
@@ -110,7 +112,7 @@ class WPAdminBar {
 		$themekeys = array_keys($this->themes);
 
 		// Create the default settings
-		$this->defaults = apply_filters( 'wpabar_defaults', array(
+		$this->defaults = apply_filters( 'wpabarimp_defaults', array(
 			'show_site'  => '1',
 			'show_admin' => '1',
 			'theme'      => $themekeys[0],
@@ -136,8 +138,8 @@ class WPAdminBar {
 
 		// Register the hooks to display the admin bar
 		if ( 1 == $this->settings['show_site'] ) {
-			add_action( 'thesis_hook_after_header', array(&$this, 'OutputCSS') );
-			add_action( 'thesis_hook_after_header', array(&$this, 'OutputMenuBar') );
+			add_action( 'wp_head', array(&$this, 'OutputCSS') );
+			add_action( 'wp_footer', array(&$this, 'OutputMenuBar') );
 		}
 		if ( 1 == $this->settings['show_admin'] ) {
 			add_action( 'admin_head', array(&$this, 'OutputCSS') );
@@ -145,7 +147,7 @@ class WPAdminBar {
 		}
 
 		// Load the little JS file for this plugin
-		wp_enqueue_script( 'wordpress-admin-bar-imrproved', $this->folder . '/wordpress-admin-bar-improved.js', array(), $this->version );
+		wp_enqueue_script( 'wordpress-admin-bar-improved', $this->folder . '/wordpress-admin-bar-improved.js', array(), $this->version );
 	}
 
 
@@ -202,8 +204,9 @@ class WPAdminBar {
 			}
 		}
 
-		$this->menu = apply_filters( 'wpabar_menuitems', $this->menu );
+		$this->menu = apply_filters( 'wpabarimp_menuitems', $this->menu );
 	}
+
 
 	// Handle settings page POST
 	function HandleFormPOST() {
@@ -216,7 +219,7 @@ class WPAdminBar {
 		$hide = $this->menu;
 		foreach ( $this->menu as $topfilename => $menuitem ) {
 			foreach( $menuitem as $submenustub => $submenutitle ) {
-				if ( isset( $_POST['wpabar_items'][$topfilename][$submenustub] ) )
+				if ( isset( $_POST['wpabarimp_items'][$topfilename][$submenustub] ) )
 					unset( $hide[$topfilename][$submenustub] );
 				else
 					$hide[$topfilename][$submenustub] = TRUE; // Reduce array size
@@ -232,9 +235,9 @@ class WPAdminBar {
 			$settings = array();
 
 		$settings[$user_ID] = array(
-			'show_site'  => $_POST['wpabar_site'],
-			'show_admin' => $_POST['wpabar_admin'],
-			'theme'      => $_POST['wpabar_theme'],
+			'show_site'  => $_POST['wpabarimp_site'],
+			'show_admin' => $_POST['wpabarimp_admin'],
+			'theme'      => $_POST['wpabarimp_theme'],
 			'hide'       => $hide,
 		);
 
@@ -247,7 +250,7 @@ class WPAdminBar {
 	// Some CSS for the settings page
 	function AdminCSS() { ?>
 	<style type="text/css">
-		#wpabarlist ul {
+		#wpabarimplist ul {
 			margin: 5px 0 0 25px;
 		}
 	</style>
@@ -273,16 +276,16 @@ class WPAdminBar {
 	//<![CDATA[
 		// My Javascript skills, especially when it comes to jQuery, are kinda poor so this code may be ugly as hell
 		jQuery(document).ready(function() {
-			jQuery("#wpabarlist").children("li").children("label").children("input[type=checkbox]").bind("change", function() {
+			jQuery("#wpabarimplist").children("li").children("label").children("input[type=checkbox]").bind("change", function() {
 				if ( true == jQuery(this).attr("checked") ) {
 					jQuery(this).parent("label").parent("li").checkCheckboxes();
 				} else {
 					jQuery(this).parent("label").parent("li").unCheckCheckboxes();
 				}
 			});
-			jQuery("#wpabarlist").children("li").children("ul").children("li").children("label").children("input[type=checkbox]").bind("click", function() {
+			jQuery("#wpabarimplist").children("li").children("ul").children("li").children("label").children("input[type=checkbox]").bind("click", function() {
 				if ( true == jQuery(this).attr("checked") ) {
-					jQuery(this).parents(".wpabar_toplevel").children("label").children("input[type=checkbox]").attr("checked","checked");
+					jQuery(this).parents(".wpabarimp_toplevel").children("label").children("input[type=checkbox]").attr("checked","checked");
 				}
 			});
 		});
@@ -301,14 +304,14 @@ class WPAdminBar {
 		<tr valign="top">
 			<th scope="row"><?php _e( 'Show the admin bar', 'wordpress-admin-bar-improved' ); ?></th>
 			<td>
-				<label for="wpabar_site"><input name="wpabar_site" type="checkbox" id="wpabar_site" value="1"<?php checked( 1, $this->settings['show_site'] ); ?> /> <?php _e( 'On the site', 'wordpress-admin-bar-improved' ); ?></label><br />
-				<label for="wpabar_admin"><input name="wpabar_admin" type="checkbox" id="wpabar_admin" value="1"<?php checked( 1, $this->settings['show_admin'] ); ?> /> <?php _e( 'In the admin area', 'wordpress-admin-bar-improved' ); ?></label>
+				<label for="wpabarimp_site"><input name="wpabarimp_site" type="checkbox" id="wpabarimp_site" value="1"<?php checked( 1, $this->settings['show_site'] ); ?> /> <?php _e( 'On the site', 'wordpress-admin-bar-improved' ); ?></label><br />
+				<label for="wpabarimp_admin"><input name="wpabarimp_admin" type="checkbox" id="wpabarimp_admin" value="1"<?php checked( 1, $this->settings['show_admin'] ); ?> /> <?php _e( 'In the admin area', 'wordpress-admin-bar-improved' ); ?></label>
 			</td>
 		</tr>
 		<tr valign="top">
-			<th scope="row"><label for="wpabar_theme"><?php _e( 'Theme', 'wordpress-admin-bar-improved' ); ?></label></th>
+			<th scope="row"><label for="wpabarimp_theme"><?php _e( 'Theme', 'wordpress-admin-bar-improved' ); ?></label></th>
 			<td>
-				<select name="wpabar_theme" id="wpabar_theme">
+				<select name="wpabarimp_theme" id="wpabarimp_theme">
 <?php foreach( $this->themes as $stub => $details ) : ?>
 					<option value="<?php echo $stub; ?>"<?php selected( $stub, $this->settings['theme'] ); ?>><?php echo htmlspecialchars( $details['name'] ); ?></option>
 <?php endforeach; ?>
@@ -318,10 +321,10 @@ class WPAdminBar {
 		<tr valign="top">
 			<th scope="row"><?php _e( 'Show the following items', 'wordpress-admin-bar-improved' ); ?></th>
 			<td>
-				<ul id="wpabarlist">
+				<ul id="wpabarimplist">
 <?php
 		foreach ( $this->menu as $topfilename => $menuitem ) {
-			echo '					<li class="wpabar_toplevel"><label><input type="checkbox" name="wpabar_items[' . $topfilename . '][0]"';
+			echo '					<li class="wpabarimp_toplevel"><label><input type="checkbox" name="wpabarimp_items[' . $topfilename . '][0]"';
 			if ( empty( $this->settings['hide'][$topfilename][0] ) ) echo ' checked="checked"';
 			echo ' /> ' . strip_tags($menuitem[0]['title']) . '</label>';
 
@@ -329,7 +332,7 @@ class WPAdminBar {
 				echo "\n						<ul>\n";
 				foreach( $menuitem as $submenustub => $submenu ) {
 					if ( 0 === $submenustub ) continue;
-					echo '							<li><label><input type="checkbox" name="wpabar_items[' . $topfilename . '][' . $submenustub . ']"';
+					echo '							<li><label><input type="checkbox" name="wpabarimp_items[' . $topfilename . '][' . $submenustub . ']"';
 					if ( empty( $this->settings['hide'][$topfilename][$submenustub] ) ) echo ' checked="checked"';
 					echo ' /> ' . strip_tags($submenu['title']) . "</label></li>\n";
 				}
@@ -360,22 +363,22 @@ class WPAdminBar {
 	// Output the needed CSS for the plugin
 	function OutputCSS() { ?>
 	<link rel="stylesheet" href="<?php echo $this->themes[$this->settings['theme']]['css']; ?>" type="text/css" />
-	<!--[if lt IE 7]><style type="text/css">#wpabar { position: absolute; } #wpabar .wpabar-menupop li a { width: 100%; }</style><![endif]-->
+	<!--[if lt IE 7]><style type="text/css">#wpabarimp { position: absolute; } #wpabarimp .wpabarimp-menupop li a { width: 100%; }</style><![endif]-->
 <?php
 		if ( is_admin() ) {
-			echo '	<style type="text/css">#wpabarlist ul { margin: 5px 0 0 25px; }</style>' . "\n";
+			echo '	<style type="text/css">#wpabarimplist ul { margin: 5px 0 0 25px; }</style>' . "\n";
 		}
 	}
 
 
 	// Generate and output the HTML for the admin menu
 	function OutputMenuBar() {
-		$this->SetupMenu(); 
+		$this->SetupMenu();
 ?>
 
 <!-- Start WordPress Admin Bar -->
-<div id="wpabar">
-	<div id="wpabar-leftside">
+<div id="wpabarimp">
+	<div id="wpabarimp-leftside">
 		<ul>
 			<!-- Begin IFBDesign Customization -->
 			<?php if ( !is_user_logged_in() ) { ?>
@@ -386,7 +389,6 @@ class WPAdminBar {
             <input type="checkbox" id="rememberme" name="rememberme" value="forever" tabindex="3" /><span style="color:#FFFFFF;">Remember Me</span>
 			</form>
 			<?php } else { ?>
-
 <?php
 
 			$first = TRUE;
@@ -394,43 +396,43 @@ class WPAdminBar {
 
 			foreach( $this->menu as $topstub => $menu ) {
 				if ( FALSE === $switched && 39 < $menu[0]['id'] ) {
-					echo "		</ul>\n	</div>\n	<div id=\"wpabar-rightside\">\n		<ul>\n";
+					echo "		</ul>\n	</div>\n	<div id=\"wpabarimp-rightside\">\n		<ul>\n";
 					$switched = TRUE;
 				}
 
 				if ( isset($this->settings['hide'][$topstub][0]) && ( 'options-general.php' !== $topstub || !is_admin() ) ) continue;
 
 				if ( 1 == count($menu) ) {
-					echo '			<li class="wpabar-menu_';
+					echo '			<li class="wpabarimp-menu_';
 					if ( TRUE === $menu[0]['custom'] ) echo 'admin-php_';
 					echo str_replace( '.', '-', $topstub );
 
 					if ( TRUE == $first ) {
-						echo ' wpabar-menu-first';
+						echo ' wpabarimp-menu-first';
 						$first = FALSe;
 					}
 
 					echo '"><a href="' . admin_url( $topstub ) . '">' . $menu[0]['title'] . "</a></li>\n";
 				} else {
-					echo '			<li class="wpabar-menu_';
+					echo '			<li class="wpabarimp-menu_';
 					if ( TRUE === $menu[0]['custom'] ) echo 'admin-php_';
 					echo str_replace( '.', '-', $topstub );
 
 					if ( TRUE == $first ) {
-						echo ' wpabar-menu-first';
+						echo ' wpabarimp-menu-first';
 						$first = FALSe;
 					}
 
 					$url = ( TRUE === $menu[0]['custom'] ) ? 'admin.php?page=' . $topstub : $topstub;
 
-					echo ' wpabar-menupop" onmouseover="showNav(this)" onmouseout="hideNav(this)">' . "\n" . '				<a href="' . admin_url( $url ) . '"><span class="wpabar-dropdown">' . $menu[0]['title'] . "</span></a>\n				<ul>\n";
+					echo ' wpabarimp-menupop" onmouseover="showNav(this)" onmouseout="hideNav(this)">' . "\n" . '				<a href="' . admin_url( $url ) . '"><span class="wpabarimp-dropdown">' . $menu[0]['title'] . "</span></a>\n				<ul>\n";
 
 					foreach( $menu as $submenustub => $submenu ) {
 						if ( 0 === $submenustub || ( !empty($this->settings['hide'][$topstub]) && TRUE === $this->settings['hide'][$topstub][$submenustub] && ( 'wordpress-admin-bar-improved' !== $submenustub || !is_admin() ) ) )
 							continue;
 
-						$parent = ( TRUE === $menu[0]['custom'] ) ? 'admin.php' : $topstub;
-						$url = ( TRUE === $submenu['custom'] ) ? $parent . '?page=' . $submenustub : $submenustub;
+						$parent = ( !empty($menu[0]['custom']) && TRUE === $menu[0]['custom'] ) ? 'admin.php' : $topstub;
+						$url = ( !empty($submenu['custom']) && TRUE === $submenu['custom'] ) ? $parent . '?page=' . $submenustub : $submenustub;
 
 						echo '					<li><a href="' . admin_url( $url ) . '">' . $submenu['title'] . "</a></li>\n";
 					}
@@ -438,18 +440,17 @@ class WPAdminBar {
 					echo "				</ul>\n			</li>\n";
 				}
 			}
+		}
 
 ?>
-			<?php } ?>
             <?php if ( !is_user_logged_in() ) { ?>
-            <?php echo "		</ul>\n	</div>\n	<div id=\"wpabar-rightside\">\n		<ul>\n";  ?>
-			<div style="margin:-2px 0px;">
+            </ul></div><div id="wpabar-rightside"><ul>
+		<div style="margin:-2px 0px;">
             <?php } ?>
             <li><?php wp_loginout(); ?></li>
             <?php if ( !is_user_logged_in() ) { ?>
-            <?php echo "</div>" ?>
+            </div>
             <?php } ?>
-
 		</ul>
 	</div>
 </div>
@@ -461,9 +462,12 @@ class WPAdminBar {
 	function AddSingleEditLink( $menu ) {
 		global $posts;
 
-		if ( ( is_single() && current_user_can( 'edit_post', $post_ID ) ) || ( is_page() && current_user_can( 'edit_page', $post_ID ) ) ) {
-			$post_ID = $posts[0]->ID;
+		if ( empty($posts) )
+			return $menu;
 
+		$post_ID = $posts[0]->ID;
+
+		if ( ( is_single() && current_user_can( 'edit_post', $post_ID ) ) || ( is_page() && current_user_can( 'edit_page', $post_ID ) ) ) {
 			if ( function_exists('get_edit_post_link') )
 				$editlink = str_replace( get_bloginfo('wpurl') . '/wp-admin/', '', get_edit_post_link( $post_ID ) );
 			else
@@ -509,17 +513,17 @@ class WPAdminBar {
 		return $menu;
 	}
 }
- 
+
 
 // Start this plugin once all other files and plugins are fully loaded
-add_action( 'plugins_loaded', create_function( '', 'global $WPAdminBar; $WPAdminBar = new WPAdminBar();' ), 15 );
+add_action( 'plugins_loaded', create_function( '', 'global $WPAdminBarImproved; $WPAdminBarImproved = new WPAdminBarImproved();' ), 15 );
 
 
 // Call this from your theme's functions.php to easily add a new bar style for your theme
-function wpabar_register_theme( $name, $stub, $filename ) {
-	global $WPAdminBar;
+function wpabarimp_register_theme( $name, $stub, $filename ) {
+	global $WPAdminBarImproved;
 	$newtheme = array( $stub => array( 'name' => $name, 'css' => get_bloginfo('wpurl') . '/wp-content/themes/' . get_template() . '/' . $filename ) );
-	$WPAdminBar->themes = $newtheme + $WPAdminBar->themes; // Add it as the first one so it'll be the default
+	$WPAdminBarImproved->themes = $newtheme + $WPAdminBarImproved->themes; // Add it as the first one so it'll be the default
 }
 
 ?>
