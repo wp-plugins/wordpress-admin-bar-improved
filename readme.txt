@@ -70,6 +70,7 @@ If it's not working for you, first try switching to the default WordPress theme.
 
 == ChangeLog ==
 **Version 1.0.7**
+
 * Updated Compatibility with WordPress 2.9
 * Bugfix - some users were saying that the plugin was not working as expected.
 * CSS Enhancements / Refinements
