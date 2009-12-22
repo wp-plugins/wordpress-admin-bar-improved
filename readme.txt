@@ -4,7 +4,7 @@ Donate link: http://ifbdesign.com/donate/
 Tags: admin, bar, top, login
 Requires at least: 2.7
 Tested up to: 2.9
-Stable tag: 1.0.7
+Stable tag: 1.0.7.1
 
 An upload-and-activate plugin that creates an admin bar at the top of your site like the one at WordPress.com. It allows users to log in from any page.
 
@@ -69,7 +69,8 @@ If it's not working for you, first try switching to the default WordPress theme.
 2. How the Plugin appears for logged in Users
 
 == ChangeLog ==
-**Version 1.0.7**
+**Version 1.0.7.1**
+
 * Updated Compatibility with WordPress 2.9
 * Bugfix - some users were saying that the plugin was not working as expected.
 * CSS Enhancements / Refinements
