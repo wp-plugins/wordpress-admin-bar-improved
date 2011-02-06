@@ -6,7 +6,7 @@ Requires at least: 2.7
 Tested up to: 2.9
 Stable tag: 1.0.7.1
 
-An upload-and-activate plugin that creates an admin bar at the top of your site like the one at WordPress.com. It allows users to log in from any page.
+** NOTE: With the advent of WP 3.1 and the built in admin bar, this plugin is going to reevaluate it's necessity for existance. **
 
 == Description ==
 
