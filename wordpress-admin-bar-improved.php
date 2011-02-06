@@ -119,6 +119,16 @@ class WPAdminBarImproved {
 			'hide'       => array(),
 		) );
 
+                function add_wpabarimp_defaults($defaults) {
+                        $pages_to_hide = array(
+                                'upload.php' => array('0' => 1),
+                                'tools.php' => array('0' => 1)
+                        );
+                        $defaults['hide'] = $pages_to_hide;
+                        return $defaults;
+                }
+                add_filter( 'wpabarimp_defaults', 'add_wpbarimp_defaults' );
+
 		// Load the settings
 		global $user_ID;
 		$settings = get_option( 'wordpress-admin-bar-improved' );
