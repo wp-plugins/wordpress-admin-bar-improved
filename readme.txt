@@ -1,6 +1,6 @@
 === WordPress Admin Bar Improved ===
 Contributors: dilbert4life, electriceasel
-Tags: admin bar, top, login form3.1+
+Tags: admin bar, top, login form, 3.1+
 Requires at least: 3.1
 Tested up to: 3.1
 Stable tag: 3.1
@@ -10,6 +10,10 @@ A set of custom tweaks to the WordPress Admin Bar that was introduced in WP3.1.
 == Description ==
 
 This plugin has been completely re-written to interface with the WP3.1 admin bar, instead of what it used to be, which was an enhancement of the now defunct [WordPress Admin Bar](http://wordpress.org/extend/plugins/wordpress-admin-bar/).
+
+**Features**
+*Displays a Login form on the front end of your site in the WP Admin Bar.
+*More to come...
 
 
 
