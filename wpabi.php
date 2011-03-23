@@ -56,8 +56,8 @@ class WPAdminBarImproved {
     			$html = ob_get_clean();
 			$loginform = 'id="wpadminbar"><div class="loginform">
 				<form action="/wp-login.php" method="post" id="adminbarlogin">
-					<input class="adminbar-input" name="log" id="adminbarlogin-log" type="text" value="" maxlength="150" />
-					<input class="adminbar-input" name="pwd" id="adminbarlogin-pwd" type="password" value="" maxlength="150" />
+					<input class="adminbar-input" name="log" id="adminbarlogin-log" type="text" value="Username" />
+					<input class="adminbar-input" name="pwd" id="adminbarlogin-pwd" type="password" value="Password" />
 					<input type="submit" class="adminbar-button" value="'.__('Login').'"/>
 				</form></div>';
 			$html = str_replace('id="wpadminbar">', $loginform, $html);
