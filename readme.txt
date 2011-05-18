@@ -2,8 +2,8 @@
 Contributors: dilbert4life, electriceasel
 Tags: admin bar, top, login form, 3.1+
 Requires at least: 3.1
-Tested up to: 3.1
-Stable tag: 3.1
+Tested up to: 3.1.2
+Stable tag: 3.1.2
 
 A set of custom tweaks to the WordPress Admin Bar that was introduced in WP3.1.
 
@@ -14,8 +14,9 @@ This plugin has been completely re-written to interface with the WP3.1 admin bar
 Check the post on this plugin over at our site, [Electric Easel](http://www.electriceasel.com/plugins/wordpress-admin-bar-improved), for instructions, updates, and other news.
 
 **Features**
-*Displays a Login form on the front end of your site in the WP Admin Bar.
-*More to come...
+* Displays a Login form on the front end of your site in the WP Admin Bar.
+* Ability to Show or Hide the admin bar by clicking the Show/Hide Box that appears below the top left corner of the admin bar
+* More to come...
 
 
 
@@ -34,6 +35,7 @@ This should result in the following file structure:
         - wordpress-admin-bar-improved
             | readme.txt
             | wpabi.css
+            | wpabi.js
             | wpabi.php`
 
 Then just visit your admin area and activate the plugin.
@@ -44,24 +46,15 @@ Then just visit your admin area and activate the plugin.
 
 Do you have WP3.1 installed?
 Have you opted to NOT show the admin bar within your user profile settings?
+Is jQuery loading properly?
+Did you try to hover over the top left corner of your site?
 
 
 == ChangeLog ==
-**Version 2.0**
+
+= 3.1.2 =
+* Added ability to show or hide the admin bar
+
+= 2.0 =
 *Completely re-written to interface with WP3.1 admin bar.
 *Dumped previous version
-
-**Version 1.0.7.1**
-
-* Updated Compatibility with WordPress 2.9
-* Bugfix - some users were saying that the plugin was not working as expected.
-* CSS Enhancements / Refinements
-* Version 2.0 ToDo
-* Remove templating "feature" - would like to make the look more static and not customizable - just because by default most themes will kill the look of the login form.
-* Various other fixes - please suggest - email me on it.
-* Option to hide the default Wordpress Admin Bar (Like the Ozh Admin Dropdown Menu) - It saves on screen real-estate :)
-
-**Version 1.0.3**
-
-* Initial release.
-
