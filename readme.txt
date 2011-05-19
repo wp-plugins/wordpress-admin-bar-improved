@@ -55,6 +55,7 @@ Did you try to hover over the top left corner of your site?
 
 = 3.1.3 =
 * Added ajax search to search form
+* fixed bug in IE
 
 = 3.1.2 =
 * Added ability to show or hide the admin bar
