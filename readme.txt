@@ -3,7 +3,7 @@ Contributors: dilbert4life, electriceasel
 Tags: admin bar, top, login form, 3.1+
 Requires at least: 3.1
 Tested up to: 3.1.2
-Stable tag: 3.1.2
+Stable tag: 3.1.2.1
 
 A set of custom tweaks to the WordPress Admin Bar that was introduced in WP3.1.
 
