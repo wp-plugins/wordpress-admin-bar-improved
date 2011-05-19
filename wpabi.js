@@ -4,6 +4,7 @@ http://www.electriceasel.com/wpabi
 ******/
 jQuery(document).ready(function($){
 	$('#wpadminbar').append('<span id="wpabi_min">Hide</span>');
+	$('html').css({'position': 'relative'});
 	$('#wpabi_min').click(function(){
 		var ctp = parseInt( $('#wpadminbar').css("top") );
 		if(ctp >= 0)
@@ -11,18 +12,12 @@ jQuery(document).ready(function($){
 			$('#wpadminbar').animate({'top': '-=28px'}, 'slow');
 			$('html').animate({'top': '-28px'}, 'slow');
 			$('#wpabi_min').text('Show');
-			
-			$("html").css("cssText", "margin-top: 0px !important;");
-
 		}
 		else
 		{
 			$('#wpadminbar').animate({'top': '+=28px'}, 'slow');
 			$('html').animate({'top': '0px'}, 'slow');
 			$('#wpabi_min').text('Hide');
-			
-			$("html").css("cssText", "margin-top: 28px !important;");
-
 		}
 	});
 	$('#adminbarlogin input').not('[type="submit"]').each(function(){
