@@ -1,9 +1,9 @@
 === WordPress Admin Bar Improved ===
 Contributors: dilbert4life, electriceasel
-Tags: admin bar, top, login form, 3.1+
+Tags: admin bar, top, login form, 3.1+, ajax, search
 Requires at least: 3.1
 Tested up to: 3.1.2
-Stable tag: 3.1.2.1
+Stable tag: 3.1.3
 
 A set of custom tweaks to the WordPress Admin Bar that was introduced in WP3.1.
 
@@ -15,6 +15,7 @@ Check the post on this plugin over at our site, [Electric Easel](http://www.elec
 
 **Features**
 * Displays a Login form on the front end of your site in the WP Admin Bar.
+* Ajax Search Popup in from Admin Bar Search Form
 * Ability to Show or Hide the admin bar by clicking the Show/Hide Box that appears below the top left corner of the admin bar
 * More to come...
 
@@ -51,6 +52,9 @@ Did you try to hover over the top left corner of your site?
 
 
 == ChangeLog ==
+
+= 3.1.3 =
+* Added ajax search to search form
 
 = 3.1.2 =
 * Added ability to show or hide the admin bar
