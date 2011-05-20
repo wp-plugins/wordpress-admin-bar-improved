@@ -3,7 +3,7 @@ Contributors: dilbert4life, electriceasel
 Tags: admin bar, top, login form, 3.1+, ajax, search
 Requires at least: 3.1
 Tested up to: 3.2 beta1
-Stable tag: 3.1.3
+Stable tag: 3.1.4
 
 A set of custom tweaks to the WordPress Admin Bar that was introduced in WP3.1.
 
@@ -52,6 +52,10 @@ Did you try to hover over the top left corner of your site?
 
 
 == ChangeLog ==
+
+= 3.1.4 =
+* Added admin screen for enabling/disabling the login form
+* Added ability to edit CSS and JS for the file directly on the admin screen, instead of going through the plugin editor.
 
 = 3.1.3 =
 * Added ajax search to search form

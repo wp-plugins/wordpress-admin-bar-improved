@@ -3,17 +3,21 @@ JS File for the WordPress Admin Bar Improved Plugin
 http://www.electriceasel.com/wpabi
 ******/
 jQuery(document).ready(function($){
+	/* if you would like to reserve the admin bar hide for logged in users only, replace #wpadminbar below with body.logged-in #wpadminbar */
+	/* If you want to disable the show hide, simple comment out the next line by placing a // in front of it */
 	$('#wpadminbar').append('<span id="wpabi_min">Hide</span>');
 	$('#wpabi_min').click(function(){
 		var ctp = parseInt( $('#wpadminbar').css("top") );
 		if(ctp >= 0)
 		{
 			$('#wpadminbar').animate({'top': '-=28px'}, 'slow');
+			$('body').animate({'margin-top': '-=28px'}, 'slow');
 			$('#wpabi_min').text('Show');
 		}
 		else
 		{
 			$('#wpadminbar').animate({'top': '+=28px'}, 'slow');
+			$('body').animate({'margin-top': '+=28px'}, 'slow');
 			$('#wpabi_min').text('Hide');
 		}
 	});
@@ -40,8 +44,11 @@ jQuery(document).ready(function($){
 		if(s.length > 2)
 		{
 			$.get('?wpabi_ajax=true&s=' + s, function(results){
-				$('#wpabi_results').html('<span class="h3">Quick Links</span>' + results);
-				$('#wpabi_ajax').fadeIn(300);
+				if(results.length > 0)
+				{
+					$('#wpabi_results').html('<span class="h3">Quick Links</span>' + results);
+					$('#wpabi_ajax').fadeIn(300);
+				}
 			});
 		}
 	});

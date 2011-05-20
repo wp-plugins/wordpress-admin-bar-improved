@@ -42,6 +42,13 @@ http://www.electriceasel.com/wpabi
     margin: 0;
     padding: 3px;
 }
+#wpadminbar #adminbarlogin .adminbar-loginmeta {
+    position:relative;
+    top:-2px;
+}
+#wpadminbar #adminbarlogin .adminbar-loginmeta * {
+    font-size:11px;
+}
 
 #wpadminbar #wpabi_min {
 	position:absolute;
