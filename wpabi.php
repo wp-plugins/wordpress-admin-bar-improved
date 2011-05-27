@@ -5,7 +5,7 @@
 Plugin Name:  WordPress Admin Bar Improved
 Plugin URI:   http://www.electriceasel.com/wpabi
 Description:  A set of custom tweaks to the WordPress Admin Bar that was introduced in WP3.1
-Version:      3.1.4
+Version:      3.1.5
 Author:       dilbert4life, electriceasel
 Author URI:   http://www.electriceasel.com/team-member/don-gilbert
 
@@ -29,7 +29,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **************************************************************************/
 
 class WPAdminBarImproved {
-	private $version = '3.1.4';
+	private $version = '3.1.5';
 	private $css_file;
 	private $js_file;
 	private $editing_file;
@@ -37,6 +37,7 @@ class WPAdminBarImproved {
 	private $show_form;
 	private $do_ajax;
 	private $load_js;
+	private $reg_link;
 	private $options;
 	
 	function WPAdminBarImproved()
@@ -53,6 +54,8 @@ class WPAdminBarImproved {
 		
 		$this->show_form = ($this->options['show_form'] === 'no') ? false : true;
 		$this->do_ajax = ($this->options['ajax_search'] === 'no') ? false : true;
+		$this->reg_link = ($this->options['reg_link'] === 'no') ? false : true;
+
 		/* todo - somehow make this work to see if javascript needs loaded
 		($this->options['ajax_search'] === 'yes') ? true : false;
 		*/
@@ -103,8 +106,12 @@ class WPAdminBarImproved {
 					<span class="adminbar-loginmeta">
 						<input type="checkbox" checked="checked" tabindex="3" value="forever" id="rememberme" name="rememberme">
 						<label for="rememberme">'.__('Remember me').'</label>
-						<a href="'.wp_login_url().'?action=lostpassword">'.__('Lost your password?').'</a></span>
-				</form></div>';
+						<a href="'.wp_login_url().'?action=lostpassword">'.__('Lost your password?').'</a>';
+			if($this->reg_link)
+			{
+				$loginform .= '<a href="'.wp_login_url().'?action=register">'.__('Register').'</a>';
+			}
+			$loginform .= '</span></form></div>';
 			$html = str_replace('id="wpadminbar">', $loginform, $html);
 			echo $html;
 		}
@@ -204,12 +211,7 @@ class WPAdminBarImproved {
 	{
 		global $wpdb, $wp_roles, $current_user;
 		
-		if(!defined("MULTISITE"))
-		{
-			define("MULTISITE", false);
-		}
-		
-		if ( MULTISITE && is_site_admin() ) 
+		if ( is_multisite() && is_site_admin() ) 
 		{
 			add_submenu_page('ms-admin.php', 'Admin Ads', 'Admin Ads', 10, 'admin-ads', 'admin_ads_page_main_output');
 		}
@@ -248,11 +250,15 @@ class WPAdminBarImproved {
             		<label>Show Login Form?</label>
                 	<input type="radio" name="wpabi_options[show_form]" value="yes" <?php checked($this->options['show_form'], 'yes') ?>/><span>Yes</span>
                 	<input type="radio" name="wpabi_options[show_form]" value="no" <?php checked($this->options['show_form'], 'no') ?>/><span>No</span>
-            	</li>
-        		<li>
+            	</li>        		<li>
             		<label>Ajax Search</label>
                 	<input type="radio" name="wpabi_options[ajax_search]" value="yes" <?php checked($this->options['ajax_search'], 'yes') ?>/><span>Enabled</span>
                 	<input type="radio" name="wpabi_options[ajax_search]" value="no" <?php checked($this->options['ajax_search'], 'no') ?>/><span>Disabled</span>
+            	</li>
+        		<li>
+            		<label>Show Registration Link in Form?</label>
+                	<input type="radio" name="wpabi_options[reg_link]" value="yes" <?php checked($this->options['reg_link'], 'yes') ?>/><span>Enabled</span>
+                	<input type="radio" name="wpabi_options[reg_link]" value="no" <?php checked($this->options['reg_link'], 'no') ?>/><span>Disabled</span>
             	</li>
             	<li>
                 	&nbsp;
