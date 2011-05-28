@@ -209,11 +209,12 @@ class WPAdminBarImproved {
 	
 	public function admin_menu()
 	{
-		global $wpdb, $wp_roles, $current_user;
+		global $wpdb, $wp_roles, $wp_version, $current_user;
 		
 		if ( is_multisite() && is_site_admin() ) 
 		{
-			add_submenu_page('ms-admin.php', 'Admin Ads', 'Admin Ads', 10, 'admin-ads', 'admin_ads_page_main_output');
+			$where_to_place = (version_compare($wp_version, '3.1', '>=')) ? 'settings.php' : 'ms-admin.php' ;
+			add_submenu_page($where_to_place, 'Admin Ads', 'Admin Ads', 10, 'admin-ads', 'admin_ads_page_main_output');
 		}
 		else
 		{
