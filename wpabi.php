@@ -214,7 +214,7 @@ class WPAdminBarImproved {
 		if ( is_multisite() && is_site_admin() ) 
 		{
 			$where_to_place = (version_compare($wp_version, '3.1', '>=')) ? 'settings.php' : 'ms-admin.php' ;
-			add_submenu_page($where_to_place, 'Admin Ads', 'Admin Ads', 10, 'admin-ads', 'admin_ads_page_main_output');
+			add_submenu_page($where_to_place', 'WPABI', 'WPABI', 'manage_options', 'wpabi', array(&$this, 'admin_page_render'));
 		}
 		else
 		{
