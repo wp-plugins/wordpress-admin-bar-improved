@@ -5,7 +5,7 @@
 Plugin Name:  WordPress Admin Bar Improved
 Plugin URI:   http://www.electriceasel.com/wpabi
 Description:  A set of custom tweaks to the WordPress Admin Bar that was introduced in WP3.1
-Version:      3.1.6
+Version:      3.1.7
 Author:       dilbert4life, electriceasel
 Author URI:   http://www.electriceasel.com/team-member/don-gilbert
 
@@ -29,7 +29,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **************************************************************************/
 
 class WPAdminBarImproved {
-	private $version = '3.1.6';
+	private $version = '3.1.7';
 	private $css_file;
 	private $js_file;
 	private $editing_file;
@@ -38,6 +38,7 @@ class WPAdminBarImproved {
 	private $do_ajax;
 	private $load_js;
 	private $reg_link;
+	private $toggleme;
 	private $options;
 	
 	function WPAdminBarImproved()
@@ -55,6 +56,7 @@ class WPAdminBarImproved {
 		$this->show_form = ($this->options['show_form'] === 'no') ? false : true;
 		$this->do_ajax = ($this->options['ajax_search'] === 'no') ? false : true;
 		$this->reg_link = ($this->options['reg_link'] === 'no') ? false : true;
+		$this->toggleme = ($this->options['hide_admin_bar'] === 'no') ? false : true;
 
 		/* todo - somehow make this work to see if javascript needs loaded
 		($this->options['ajax_search'] === 'yes') ? true : false;
@@ -66,7 +68,7 @@ class WPAdminBarImproved {
 		
 		$this->scrollto = isset($_REQUEST['scrollto']) ? (int) $_REQUEST['scrollto'] : 0;
 		
-		if($this->show_form)
+		if($this->show_form || $this->toggleme)
 		{
 			add_action('wp_before_admin_bar_render', array( &$this, 'before' ));
 			add_action('wp_after_admin_bar_render', array( &$this, 'after' ));
@@ -89,16 +91,21 @@ class WPAdminBarImproved {
 	
 	public function before()
 	{
-		if(!is_user_logged_in()) {
+		if(!is_user_logged_in() || $this->toggleme) {
 			ob_start();
 		}
 	}
 
 	public function after()
 	{
+		$html = ob_get_clean();
+		$loginform = 'id="wpadminbar">';
+		if($this->toggleme)
+		{
+			$loginform = 'class="toggleme" '.$loginform;
+		}
 		if(!is_user_logged_in()) {
-			$html = ob_get_clean();
-			$loginform = 'id="wpadminbar"><div class="loginform">
+			$loginform .= '<div class="loginform">
 				<form action="'.wp_login_url().'" method="post" id="adminbarlogin">
 					<input class="adminbar-input" name="log" id="adminbarlogin-log" type="text" value="'.__('Username').'" />
 					<input class="adminbar-input" name="pwd" id="adminbarlogin-pwd" type="password" value="'.__('Password').'" />
@@ -112,9 +119,9 @@ class WPAdminBarImproved {
 				$loginform .= '<a href="'.wp_login_url().'?action=register">'.__('Register').'</a>';
 			}
 			$loginform .= '</span></form></div>';
-			$html = str_replace('id="wpadminbar">', $loginform, $html);
-			echo $html;
 		}
+		$html = str_replace('id="wpadminbar">', $loginform, $html);
+		echo $html;
 	}
 	
 	public function ajax_search()
@@ -255,6 +262,11 @@ class WPAdminBarImproved {
             		<label>Ajax Search</label>
                 	<input type="radio" name="wpabi_options[ajax_search]" value="yes" <?php checked($this->options['ajax_search'], 'yes') ?>/><span>Enabled</span>
                 	<input type="radio" name="wpabi_options[ajax_search]" value="no" <?php checked($this->options['ajax_search'], 'no') ?>/><span>Disabled</span>
+            	</li>
+        	<li>
+            		<label>Show/Hide Button</label>
+                	<input type="radio" name="wpabi_options[hide_admin_bar]" value="yes" <?php checked($this->options['hide_admin_bar'], 'yes') ?>/><span>Enabled</span>
+                	<input type="radio" name="wpabi_options[hide_admin_bar]" value="no" <?php checked($this->options['hide_admin_bar'], 'no') ?>/><span>Disabled</span>
             	</li>
         		<li>
             		<label>Show Registration Link in Form?</label>

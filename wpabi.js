@@ -4,8 +4,7 @@ http://www.electriceasel.com/wpabi
 ******/
 jQuery(document).ready(function($){
 	/* if you would like to reserve the admin bar hide for logged in users only, replace #wpadminbar below with body.logged-in #wpadminbar */
-	/* If you want to disable the show hide, simple comment out the next line by placing a // in front of it */
-	$('#wpadminbar').append('<span id="wpabi_min">Hide</span>');
+	$('#wpadminbar.toggleme').append('<span id="wpabi_min">Hide</span>');
 	$('#wpabi_min').click(function(){
 		var ctp = parseInt( $('#wpadminbar').css("top") );
 		if(ctp >= 0)

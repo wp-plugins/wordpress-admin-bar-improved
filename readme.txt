@@ -2,8 +2,8 @@
 Contributors: dilbert4life, electriceasel
 Tags: admin bar, top, login form, 3.1+, ajax, search
 Requires at least: 3.1
-Tested up to: 3.2 beta2
-Stable tag: 3.1.6
+Tested up to: 3.2 RC1
+Stable tag: 3.1.7
 
 A set of custom tweaks to the WordPress Admin Bar that was introduced in WP3.1.
 
@@ -53,11 +53,14 @@ Did you try to hover over the top left corner of your site?
 
 == ChangeLog ==
 
+= 3.1.7 =
+* Added option to turn off the Show/Hide feature in admin panel
+
 = 3.1.6 =
 * Fixed issue that triggered a fatal error upon installation.
 
 = 3.1.5 =
-* Fixed multsite admin page
+* Fixed multisite admin page
 * Added ability to enable the register link next to the login form.
 
 = 3.1.4 =
