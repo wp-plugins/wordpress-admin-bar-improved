@@ -211,22 +211,13 @@ class WPAdminBarImproved {
 			$this->write_file();
 		}
 		wp_enqueue_style('theme-editor');
-		add_action('admin_menu', array( &$this, 'admin_menu' ));
+		$hook = (version_compare($wp_version, '3.1', '>=')) ? 'network_admin_menu' : 'admin_menu' ;
+		add_action($hook, array( &$this, 'admin_menu' ));
 	}
 	
 	public function admin_menu()
 	{
-		global $wpdb, $wp_roles, $wp_version, $current_user;
-		
-		if ( is_multisite() && is_site_admin() ) 
-		{
-			$where_to_place = (version_compare($wp_version, '3.1', '>=')) ? 'settings.php' : 'ms-admin.php' ;
-			add_submenu_page($where_to_place, 'WPABI', 'WPABI', 'manage_options', 'wpabi', array(&$this, 'admin_page_render'));
-		}
-		else
-		{
-			add_options_page('WPABI', 'WPABI', 'manage_options', 'wpabi', array(&$this, 'admin_page_render'));
-		}
+		add_options_page('WPABI', 'WPABI', 'manage_options', 'wpabi', array(&$this, 'admin_page_render'));
 	}
 	
 	public function admin_page_render()
