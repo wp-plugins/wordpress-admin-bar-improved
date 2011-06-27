@@ -211,7 +211,7 @@ class WPAdminBarImproved {
 			$this->write_file();
 		}
 		wp_enqueue_style('theme-editor');
-		$hook = (version_compare($wp_version, '3.1', '>=')) ? 'network_admin_menu' : 'admin_menu' ;
+		$hook = (version_compare($wp_version, '3.1', '>=') && is_multisite()) ? 'network_admin_menu' : 'admin_menu' ;
 		add_action($hook, array( &$this, 'admin_menu' ));
 	}
 	
