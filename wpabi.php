@@ -5,7 +5,7 @@
 Plugin Name:  WordPress Admin Bar Improved
 Plugin URI:   http://www.electriceasel.com/wpabi
 Description:  A set of custom tweaks to the WordPress Admin Bar that was introduced in WP3.1
-Version:      3.1.7
+Version:      3.2
 Author:       dilbert4life, electriceasel
 Author URI:   http://www.electriceasel.com/team-member/don-gilbert
 
@@ -29,7 +29,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **************************************************************************/
 
 class WPAdminBarImproved {
-	private $version = '3.1.7';
+	private $version = '3.2';
 	private $css_file;
 	private $js_file;
 	private $editing_file;
@@ -39,6 +39,7 @@ class WPAdminBarImproved {
 	private $load_js;
 	private $reg_link;
 	private $toggleme;
+	private $custom_menu;
 	private $options;
 	
 	function WPAdminBarImproved()
@@ -57,6 +58,7 @@ class WPAdminBarImproved {
 		$this->do_ajax = ($this->options['ajax_search'] === 'no') ? false : true;
 		$this->reg_link = ($this->options['reg_link'] === 'no') ? false : true;
 		$this->toggleme = ($this->options['hide_admin_bar'] === 'no') ? false : true;
+		$this->custom_menu = ($this->options['custom_menu'] === 'no') ? false : true;
 
 		/* todo - somehow make this work to see if javascript needs loaded
 		($this->options['ajax_search'] === 'yes') ? true : false;
@@ -81,12 +83,49 @@ class WPAdminBarImproved {
 		
 		wp_enqueue_style('wpabi_css', plugins_url('wpabi.css', __FILE__), '', '2.0', 'all');
 		
+		if($this->custom_menu)
+		{
+			$this->add_custom_menu();
+		}
+		
 		$this->admin_page();
 	}
 	
 	public function options()
 	{
 		register_setting( 'wpabi_options', 'wpabi_options', array( &$this, 'wpabi_options_validate') );
+	}
+	
+	public function add_custom_menu()
+	{
+		if(!current_theme_supports('menus'))
+		{
+			add_theme_support('menus');
+		}
+		register_nav_menu('wpabi_menu', 'Admin Bar Improved');
+		add_action('admin_bar_menu',  array( &$this, 'build_menu'), 9999);
+	}
+	
+	public function build_menu($wp_admin_bar)
+	{
+		$locations = get_nav_menu_locations();
+		$menu = wp_get_nav_menu_object($locations['wpabi_menu']);
+		$menu_items = wp_get_nav_menu_items($menu->term_id);
+		
+		foreach($menu_items as $menu_item) {
+			$args = array(
+						  'id' => 'wpabi_'.$menu_item->ID,
+						  'title' => $menu_item->title,
+						  'href' => $menu_item->url
+						);
+			
+			if(!empty($menu_item->menu_item_parent))
+			{
+				$args['parent'] = 'wpabi_'.$menu_item->menu_item_parent;
+			}
+			
+			$wp_admin_bar->add_menu($args);
+		}
 	}
 	
 	public function before()
@@ -263,6 +302,11 @@ class WPAdminBarImproved {
             		<label>Show Registration Link in Form?</label>
                 	<input type="radio" name="wpabi_options[reg_link]" value="yes" <?php checked($this->options['reg_link'], 'yes') ?>/><span>Enabled</span>
                 	<input type="radio" name="wpabi_options[reg_link]" value="no" <?php checked($this->options['reg_link'], 'no') ?>/><span>Disabled</span>
+            	</li>
+        		<li>
+            		<label>Enabled Custom Admin Bar Menu?</label>
+                	<input type="radio" name="wpabi_options[custom_menu]" value="yes" <?php checked($this->options['custom_menu'], 'yes') ?>/><span>Enabled</span>
+                	<input type="radio" name="wpabi_options[custom_menu]" value="no" <?php checked($this->options['custom_menu'], 'no') ?>/><span>Disabled</span>
             	</li>
             	<li>
                 	&nbsp;

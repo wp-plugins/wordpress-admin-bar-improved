@@ -2,24 +2,29 @@
 Contributors: dilbert4life, electriceasel
 Tags: admin bar, top, login form, 3.1+, ajax, search
 Requires at least: 3.1
-Tested up to: 3.2 RC1
-Stable tag: 3.1.7
+Tested up to: 3.2
+Stable tag: 3.2
 
 A set of custom tweaks to the WordPress Admin Bar that was introduced in WP3.1.
 
 == Description ==
 
-This plugin has been completely re-written to interface with the WP3.1 admin bar, instead of what it used to be, which was an enhancement of the now defunct [WordPress Admin Bar](http://wordpress.org/extend/plugins/wordpress-admin-bar/).
+This plugin has been completely re-written to interface with the WP3.1 admin bar, and adds some much requested / great features to the WP Admin Bar.
 
 Check the post on this plugin over at our site, [Electric Easel](http://www.electriceasel.com/plugins/wordpress-admin-bar-improved), for instructions, updates, and other news.
 
-**Features**
+Features:
+
+* Easy Interface using WP3.0 Menus to add custom menu items to your Admin Bar.
 * Displays a Login form on the front end of your site in the WP Admin Bar.
 * Ajax Search Popup in from Admin Bar Search Form
 * Ability to Show or Hide the admin bar by clicking the Show/Hide Box that appears below the top left corner of the admin bar
 * More to come...
 
+ToDo:
 
+* Manage default menu items.
+* Make everything work with MultiSite
 
 == Installation ==
 
@@ -35,6 +40,7 @@ This should result in the following file structure:
     - plugins
         - wordpress-admin-bar-improved
             | readme.txt
+            | screenshot-1.png
             | wpabi.css
             | wpabi.js
             | wpabi.php`
@@ -42,6 +48,10 @@ This should result in the following file structure:
 Then just visit your admin area and activate the plugin.
 
 == Frequently Asked Questions ==
+
+= How to add menu items = 
+
+In the admin area of your site, click "Menus" under the "Appearance" menu. Create a new menu named `WPABI` or something like that. Add whatever menu items you want to it, and save the menu. In the box titled "Theme Locations", select the menu you created in the `Admin Bar Improved` dropdown select list, and hit save. After that, your menu items will appear in your admin bar!
 
 = It's not working! =
 
@@ -52,6 +62,9 @@ Did you try to hover over the top left corner of your site?
 
 
 == ChangeLog ==
+
+= 3.2 =
+* Added easy integration for custom menu items using WP3.0 menu system.
 
 = 3.1.7 =
 * Added option to turn off the Show/Hide feature in admin panel
