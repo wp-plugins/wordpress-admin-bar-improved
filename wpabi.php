@@ -5,7 +5,7 @@
 Plugin Name:  WordPress Admin Bar Improved
 Plugin URI:   http://www.electriceasel.com/wpabi
 Description:  A set of custom tweaks to the WordPress Admin Bar that was introduced in WP3.1
-Version:      3.2
+Version:      3.2.2
 Author:       dilbert4life, electriceasel
 Author URI:   http://www.electriceasel.com/team-member/don-gilbert
 
@@ -29,7 +29,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **************************************************************************/
 
 class WPAdminBarImproved {
-	private $version = '3.2';
+	private $version = '3.2.2';
 	private $css_file;
 	private $js_file;
 	private $editing_file;
@@ -54,15 +54,16 @@ class WPAdminBarImproved {
 		
 		$this->options = get_option('wpabi_options');
 		
-		$this->show_form = ($this->options['show_form'] === 'no') ? false : true;
-		$this->do_ajax = ($this->options['ajax_search'] === 'no') ? false : true;
-		$this->reg_link = ($this->options['reg_link'] === 'no') ? false : true;
-		$this->toggleme = ($this->options['hide_admin_bar'] === 'no') ? false : true;
-		$this->custom_menu = ($this->options['custom_menu'] === 'no') ? false : true;
+		$this->show_form = ($this->options['show_form'] === 'yes') ? true : false;
+		$this->do_ajax = ($this->options['ajax_search'] === 'yes') ? true : false;
+		$this->reg_link = ($this->options['reg_link'] === 'yes') ? true : false;
+		$this->toggleme = ($this->options['hide_admin_bar'] === 'yes') ? true : false;
+		$this->custom_menu = ($this->options['custom_menu'] === 'yes') ? true : false;
 
 		/* todo - somehow make this work to see if javascript needs loaded
-		($this->options['ajax_search'] === 'yes') ? true : false;
-		*/
+		 * Something like this below, but other things depend on JS as well
+		 * ($this->options['ajax_search'] === 'yes') ? true : false;
+		 */
 		$this->load_js = true;
 		
 		$this->css_file  = dirname(__FILE__) . '/wpabi.css';
@@ -110,7 +111,7 @@ class WPAdminBarImproved {
 	{
 		$locations = get_nav_menu_locations();
 		$menu = wp_get_nav_menu_object($locations['wpabi_menu']);
-		$menu_items = wp_get_nav_menu_items($menu->term_id);
+		$menu_items = (array) wp_get_nav_menu_items($menu->term_id);
 		
 		foreach($menu_items as $menu_item) {
 			$args = array(
