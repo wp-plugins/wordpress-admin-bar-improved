@@ -63,6 +63,9 @@ Did you try to hover over the top left corner of your site?
 
 == ChangeLog ==
 
+= 3.2.3 =
+* Show/hide feature now persists across pages. Utilizes jQuery.cookie.
+
 = 3.2 =
 * Added easy integration for custom menu items using WP3.0 menu system.
 
