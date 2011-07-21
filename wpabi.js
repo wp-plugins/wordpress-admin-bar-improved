@@ -5,6 +5,12 @@ http://www.electriceasel.com/wpabi
 jQuery(document).ready(function($){
 	/* if you would like to reserve the admin bar hide for logged in users only, replace #wpadminbar below with body.logged-in #wpadminbar */
 	$('#wpadminbar.toggleme').append('<span id="wpabi_min">Hide</span>');
+	if($.cookie('wpabi_show') == 0)
+	{
+			$('#wpadminbar').css('top', '-28px');
+			$('body').css('margin-top', '-28px');
+			$('#wpabi_min').text('Show');
+	}
 	$('#wpabi_min').click(function(){
 		var ctp = parseInt( $('#wpadminbar').css("top") );
 		if(ctp >= 0)
@@ -12,12 +18,14 @@ jQuery(document).ready(function($){
 			$('#wpadminbar').animate({'top': '-=28px'}, 'slow');
 			$('body').animate({'margin-top': '-=28px'}, 'slow');
 			$('#wpabi_min').text('Show');
+			$.cookie('wpabi_show', 0, { expires: 7, path: '/', domain: location.hostname, secure: false });
 		}
 		else
 		{
 			$('#wpadminbar').animate({'top': '+=28px'}, 'slow');
 			$('body').animate({'margin-top': '+=28px'}, 'slow');
 			$('#wpabi_min').text('Hide');
+			$.cookie('wpabi_show', 1, { expires: 7, path: '/', domain: location.hostname, secure: false });
 		}
 	});
 	$('#adminbarlogin input').not('[type="submit"]').each(function(){
@@ -55,3 +63,37 @@ jQuery(document).ready(function($){
 		$('#wpabi_ajax').fadeOut(300);
 	});
 });
+
+if(jQuery().cookie){}else{
+	jQuery.cookie = function (key, value, options) {
+		// key and at least value given, set cookie...
+		if (arguments.length > 1 && String(value) !== "[object Object]") {
+			options = jQuery.extend({}, options);
+	
+			if (value === null || value === undefined) {
+				options.expires = -1;
+			}
+	
+			if (typeof options.expires === 'number') {
+				var days = options.expires, t = options.expires = new Date();
+				t.setDate(t.getDate() + days);
+			}
+			
+			value = String(value);
+			
+			return (document.cookie = [
+				encodeURIComponent(key), '=',
+				options.raw ? value : encodeURIComponent(value),
+				options.expires ? '; expires=' + options.expires.toUTCString() : '', // use expires attribute, max-age is not supported by IE
+				options.path ? '; path=' + options.path : '',
+				options.domain ? '; domain=' + options.domain : '',
+				options.secure ? '; secure' : ''
+			].join(''));
+		}
+	
+		// key and possibly options given, get cookie...
+		options = value || {};
+		var result, decode = options.raw ? function (s) { return s; } : decodeURIComponent;
+		return (result = new RegExp('(?:^|; )' + encodeURIComponent(key) + '=([^;]*)').exec(document.cookie)) ? decode(result[1]) : null;
+	};
+}

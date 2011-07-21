@@ -5,7 +5,7 @@
 Plugin Name:  WordPress Admin Bar Improved
 Plugin URI:   http://www.electriceasel.com/wpabi
 Description:  A set of custom tweaks to the WordPress Admin Bar that was introduced in WP3.1
-Version:      3.2.2
+Version:      3.2.3
 Author:       dilbert4life, electriceasel
 Author URI:   http://www.electriceasel.com/team-member/don-gilbert
 
@@ -29,7 +29,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **************************************************************************/
 
 class WPAdminBarImproved {
-	private $version = '3.2.2';
+	private $version = '3.2.3';
 	private $css_file;
 	private $js_file;
 	private $editing_file;
