@@ -3,7 +3,7 @@ Contributors: dilbert4life, electriceasel
 Tags: admin bar, top, login form, 3.1+, ajax, search
 Requires at least: 3.1
 Tested up to: 3.2
-Stable tag: 3.2.2
+Stable tag: 3.2.3
 
 A set of custom tweaks to the WordPress Admin Bar that was introduced in WP3.1.
 
@@ -62,6 +62,9 @@ Did you try to hover over the top left corner of your site?
 
 
 == ChangeLog ==
+
+= 3.2.3 =
+* Show/hide feature now persists across pages. Utilizes jQuery.cookie
 
 = 3.2 =
 * Added easy integration for custom menu items using WP3.0 menu system.
