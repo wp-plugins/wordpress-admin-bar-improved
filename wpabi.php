@@ -5,7 +5,7 @@
 Plugin Name:  WordPress Admin Bar Improved
 Plugin URI:   http://www.electriceasel.com/wpabi
 Description:  A set of custom tweaks to the WordPress Admin Bar that was introduced in WP3.1
-Version:      3.3
+Version:      3.3.1
 Author:       dilbert4life, electriceasel
 Author URI:   http://www.electriceasel.com/team-member/don-gilbert
 
@@ -29,17 +29,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **************************************************************************/
 
 class WPAdminBarImproved {
-	private $version = '3.3';
+	private static $version = '3.3.1';
+	private $textdomain = 'wpabi';
 	private $css_file;
 	private $js_file;
 	private $editing_file;
 	private $scrollto;
-	private $show_form;
-	private $do_ajax;
 	private $load_js;
-	private $reg_link;
-	private $toggleme;
-	private $custom_menu;
 	private $options;
 	
 	function WPAdminBarImproved()
@@ -49,32 +45,32 @@ class WPAdminBarImproved {
 	
 	public function __construct()
 	{
-		add_action('admin_init', array( &$this, 'options' ));
-		add_filter( 'show_admin_bar', '__return_true' );
+		load_plugin_textdomain('wpabi', false, dirname(plugin_basename(__FILE__)) . '/lang/');
 		
+		add_action('admin_init', array( &$this, 'options' ));
 		$this->options = get_option('wpabi_options');
 		
-		$this->show_form = ($this->options['show_form'] === 'yes') ? true : false;
-		$this->do_ajax = ($this->options['ajax_search'] === 'yes' || $this->options['ajax_login'] === 'yes') ? true : false;
-		$this->reg_link = ($this->options['reg_link'] === 'yes') ? true : false;
-		$this->toggleme = ($this->options['hide_admin_bar'] === 'yes') ? true : false;
-		$this->custom_menu = ($this->options['custom_menu'] === 'yes') ? true : false;
-
-		/* todo - somehow make this work to see if javascript needs loaded
-		 * Something like this below, but other things depend on JS as well
-		 * ($this->options['ajax_search'] === 'yes') ? true : false;
-		 */
-		$this->load_js = true;
+		$this->version_check();
 		
-		$this->css_file  = dirname(__FILE__) . '/wpabi.css';
+		$this->css_file = dirname(__FILE__) . '/wpabi.css';
 		$this->js_file  = dirname(__FILE__) . '/wpabi.js';
 		
 		$this->scrollto = isset($_REQUEST['scrollto']) ? (int) $_REQUEST['scrollto'] : 0;
 		
-		if($this->show_form || $this->toggleme)
+		if($this->options['show_bar'])
 		{
-			add_action('wp_before_admin_bar_render', array( &$this, 'before' ));
-			add_action('wp_after_admin_bar_render', array( &$this, 'after' ));
+			add_filter( 'show_admin_bar', '__return_true' );
+		}
+		
+		if( (!is_user_logged_in() && $this->options['show_form']) || $this->options['toggleme'])
+		{
+			add_action('wp_before_admin_bar_render', array( &$this, 'before_admin_bar_render' ), 99);
+			add_action('wp_after_admin_bar_render', array( &$this, 'after_admin_bar_render' ), 99);
+		}
+		
+		if($this->options['toggleme'] || $this->options['ajax_login'] || $this->options['ajax_search'])
+		{
+			$this->load_js = true;
 		}
 		
 		if($this->load_js)
@@ -84,12 +80,54 @@ class WPAdminBarImproved {
 		
 		wp_enqueue_style('wpabi_css', plugins_url('wpabi.css', __FILE__), '', '2.0', 'all');
 		
-		if($this->custom_menu)
-		{
-			$this->add_custom_menu();
-		}
+		add_action('admin_bar_menu', array( &$this, 'manage_menu_items' ), 9998);
 		
 		$this->admin_page();
+	}
+	
+	private function version_check()
+	{
+		if(version_compare($this->options['version'], '3.3.1', 'lt'))
+		{
+			$this->deactivation_hook();
+			$this->activation_hook();
+		}
+	}
+	
+	public function activation_hook()
+	{
+		$options = get_option('wpabi_options');
+		if(!$options)
+		{
+			$defaults = array(
+				'version' => self::$version,
+				'show_bar' => 1,
+				'show_form' => 1,
+				'ajax_login' => 1,
+				'ajax_search' => 1,
+				'toggleme' => 1,
+				'reg_link' => 0,
+				'custom_menu' => 0,
+				'default_items' => array(
+					'my-account-with-avatar' => 1,
+					'view-site' => 1,
+					'dashboard' => 1,
+					'my-blogs' => 1,
+					'new-content' => 1,
+					'comments' => 1,
+					'appearance' => 1,
+					'edit' => 1,
+					'get-shortlink' => 1,
+					'updates' => 1
+				)
+			);
+			add_option('wpabi_options', $defaults);
+		}
+	}
+	
+	public function deactivation_hook()
+	{
+		delete_option('wpabi_options');
 	}
 	
 	public function options()
@@ -97,17 +135,43 @@ class WPAdminBarImproved {
 		register_setting( 'wpabi_options', 'wpabi_options', array( &$this, 'wpabi_options_validate') );
 	}
 	
-	public function add_custom_menu()
+	public function wpabi_options_validate($input)
+	{
+		return $input;
+	}
+	
+	public function manage_menu_items($wp_admin_bar)
+	{		
+		foreach( (array) $this->options['default_items'] as $menu => $enabled)
+		{
+			if(!$enabled)
+			{
+				$wp_admin_bar->remove_menu($menu);
+			}
+			
+			if(($menu === 'my-account-with-avatar') && !$enabled)
+			{
+				$wp_admin_bar->remove_menu('my-account');
+			}
+		}
+		
+		if($this->options['custom_menu'])
+		{
+			$this->add_custom_menu();
+		}
+	}
+	
+	private function add_custom_menu()
 	{
 		if(!current_theme_supports('menus'))
 		{
 			add_theme_support('menus');
 		}
-		register_nav_menu('wpabi_menu', 'Admin Bar Improved');
-		add_action('admin_bar_menu',  array( &$this, 'build_menu'), 9999);
+		register_nav_menu('wpabi_menu', __('Admin Bar Improved', $this->textdomain));
+		add_action('admin_bar_menu',  array( &$this, 'build_custom_menu'), 9999);
 	}
 	
-	public function build_menu($wp_admin_bar)
+	public function build_custom_menu($wp_admin_bar)
 	{
 		$locations = get_nav_menu_locations();
 		$menu = wp_get_nav_menu_object($locations['wpabi_menu']);
@@ -119,44 +183,44 @@ class WPAdminBarImproved {
 						  'title' => $menu_item->title,
 						  'href' => $menu_item->url
 						);
-			
 			if(!empty($menu_item->menu_item_parent))
 			{
 				$args['parent'] = 'wpabi_'.$menu_item->menu_item_parent;
 			}
-			
 			$wp_admin_bar->add_menu($args);
 		}
 	}
 	
-	public function before()
+	public function before_admin_bar_render()
 	{
-		if(!is_user_logged_in() || $this->toggleme) {
-			ob_start();
-		}
+		ob_start();
 	}
 
-	public function after()
+	public function after_admin_bar_render()
 	{
 		$html = ob_get_clean();
-		$loginform = 'id="wpadminbar">';
-		if($this->toggleme)
+		$loginform = 'id="wpadminbar" class="">';
+		if($this->options['toggleme'])
 		{
-			$loginform = 'class="toggleme" '.$loginform;
+			$loginform = str_replace('class="', 'class="toggleme', $loginform);
 		}
-		if(!is_user_logged_in()) {
+		if($this->options['ajax_login'])
+		{
+			$loginform = str_replace('class="', 'class="ajax_login ', $loginform);
+		}
+		if(!is_user_logged_in() && $this->options['show_form']) {
 			$loginform .= '<div class="loginform">
 				<form action="'.wp_login_url().'" method="post" id="adminbarlogin">
-					<input class="adminbar-input" name="log" id="adminbarlogin-log" type="text" value="'.__('Username').'" />
-					<input class="adminbar-input" name="pwd" id="adminbarlogin-pwd" type="password" value="'.__('Password').'" />
+					<input class="adminbar-input" name="log" id="adminbarlogin-log" type="text" value="'.__('Username', $this->textdomain).'" />
+					<input class="adminbar-input" name="pwd" id="adminbarlogin-pwd" type="password" value="'.__('Password', $this->textdomain).'" />
 					<input type="submit" class="adminbar-button" value="'.__('Login').'"/>
 					<span class="adminbar-loginmeta">
 						<input type="checkbox" checked="checked" tabindex="3" value="forever" id="rememberme" name="rememberme">
-						<label for="rememberme">'.__('Remember me').'</label>
-						<a href="'.wp_login_url().'?action=lostpassword">'.__('Lost your password?').'</a>';
-			if($this->reg_link)
+						<label for="rememberme">'.__('Remember me', $this->textdomain).'</label>
+						<a href="'.wp_login_url().'?action=lostpassword">'.__('Lost your password?', $this->textdomain).'</a>';
+			if($this->options['reg_link'])
 			{
-				$loginform .= '<a href="'.wp_login_url().'?action=register">'.__('Register').'</a>';
+				$loginform .= '<a href="'.wp_login_url().'?action=register">'.__('Register', $this->textdomain).'</a>';
 			}
 			$loginform .= '</span></form></div>';
 		}
@@ -168,7 +232,7 @@ class WPAdminBarImproved {
 	{
 		if(isset($_GET['s']) && isset($_GET['wpabi_ajax']))
 		{
-			if(!$this->do_ajax)
+			if(!$this->options['ajax_search'])
 			{
 				die();
 			}
@@ -204,7 +268,7 @@ class WPAdminBarImproved {
 			}
 			else
 			{
-				$return .= '<li><a><span class="wpabi_title">'.__('no results found').'</span><span class="wpabi_excerpt">'.__('Please enter another search term.').'</span></a></li>';
+				$return .= '<li><a><span class="wpabi_title">'.__('no results found', $this->textdomain).'</span><span class="wpabi_excerpt">'.__('Please enter another search term.', $this->textdomain).'</span></a></li>';
 			}
 			$return .= '</ul>';
 			
@@ -217,7 +281,7 @@ class WPAdminBarImproved {
 	{
 		if(isset($_POST['wpabi_ajax']) && isset($_POST['log']) && isset($_POST['pwd']))
 		{
-			if(!$this->do_ajax)
+			if(!$this->options['ajax_login'])
 			{
 				die();
 			}
@@ -225,7 +289,7 @@ class WPAdminBarImproved {
 			$user = wp_signon();
 			if(is_wp_error($user))
 			{
-				echo 'error';
+				echo $user->get_error_code();
 				die();
 			}
 			global $current_user, $user_identity;
@@ -267,6 +331,8 @@ class WPAdminBarImproved {
 	
 	private function admin_page()
 	{
+		global $wp_version;
+		
 		$this->which_file();
 		
 		if(isset($_POST['newcontent']))
@@ -280,12 +346,25 @@ class WPAdminBarImproved {
 	
 	public function admin_menu()
 	{
-		add_options_page('WPABI', 'WPABI', 'manage_options', 'wpabi', array(&$this, 'admin_page_render'));
+		$options_page = add_options_page(__('WordPress Admin Bar Improved', $this->textdomain), __('Admin Bar Improved', $this->textdomain), 'manage_options', 'wpabi', array(&$this, 'admin_page_render'));
+		add_action("admin_print_scripts-$options_page", array( &$this, 'admin_scripts' ));
+		add_action("admin_print_styles-$options_page", array( &$this, 'admin_styles' ));
+	}
+	
+	public function admin_scripts()
+	{
+		wp_enqueue_script('wpabi_admin_js', plugins_url('wpabi-admin.js', __FILE__), array('jquery'), '1.0');
+	}
+	
+	public function admin_styles()
+	{
+		wp_enqueue_style('wpabi_admin_css', plugins_url('wpabi-admin.css', __FILE__), '', '2.0', 'all');
 	}
 	
 	public function admin_page_render()
 	{
 		echo '<div class="wrap">';
+		echo '<div id="wpabi">';
 		$this->nav();
 		
 		switch($_GET['wpabi_edit'])
@@ -299,54 +378,163 @@ class WPAdminBarImproved {
 				break;
 		}
 		echo '</div>';
+		echo '</div>';
 	}
 	
 	private function main_page()
 	{
 		?>
         <br />
-        <form id="template" method="post" action="options.php">
+<div class="form-table">
+	<form id="template" method="post" action="options.php">
+		<input type="hidden" name="wpabi_options[version]" value="<?php echo self::$version; ?>" />
         <?php settings_fields('wpabi_options'); ?>
-        	<ul>
-        		<li>
-            		<label>Show Login Form?</label>
-                	<input type="radio" name="wpabi_options[show_form]" value="yes" <?php checked($this->options['show_form'], 'yes') ?>/><span>Yes</span>
-                	<input type="radio" name="wpabi_options[show_form]" value="no" <?php checked($this->options['show_form'], 'no') ?>/><span>No</span>
-            	</li>
-        		<li>
-            		<label>Ajax Search</label>
-                	<input type="radio" name="wpabi_options[ajax_search]" value="yes" <?php checked($this->options['ajax_search'], 'yes') ?>/><span>Enabled</span>
-                	<input type="radio" name="wpabi_options[ajax_search]" value="no" <?php checked($this->options['ajax_search'], 'no') ?>/><span>Disabled</span>
-            	</li>
-        		<li>
-            		<label>Ajax Login</label>
-                	<input type="radio" name="wpabi_options[ajax_login]" value="yes" <?php checked($this->options['ajax_login'], 'yes') ?>/><span>Enabled</span>
-                	<input type="radio" name="wpabi_options[ajax_login]" value="no" <?php checked($this->options['ajax_login'], 'no') ?>/><span>Disabled</span>
-            	</li>
-        		<li>
-            		<label>Show/Hide Button</label>
-                	<input type="radio" name="wpabi_options[hide_admin_bar]" value="yes" <?php checked($this->options['hide_admin_bar'], 'yes') ?>/><span>Enabled</span>
-                	<input type="radio" name="wpabi_options[hide_admin_bar]" value="no" <?php checked($this->options['hide_admin_bar'], 'no') ?>/><span>Disabled</span>
-            	</li>
-        		<li>
-            		<label>Show Registration Link in Form?</label>
-                	<input type="radio" name="wpabi_options[reg_link]" value="yes" <?php checked($this->options['reg_link'], 'yes') ?>/><span>Enabled</span>
-                	<input type="radio" name="wpabi_options[reg_link]" value="no" <?php checked($this->options['reg_link'], 'no') ?>/><span>Disabled</span>
-            	</li>
-        		<li>
-            		<label>Enabled Custom Admin Bar Menu?</label>
-                	<input type="radio" name="wpabi_options[custom_menu]" value="yes" <?php checked($this->options['custom_menu'], 'yes') ?>/><span>Enabled</span>
-                	<input type="radio" name="wpabi_options[custom_menu]" value="no" <?php checked($this->options['custom_menu'], 'no') ?>/><span>Disabled</span>
-            	</li>
-            	<li>
-                	&nbsp;
-            	</li>
-            	<li>
-            		<label>&nbsp;</label>
-                	<?php submit_button( __( 'Save Options' ), 'primary', 'submit', false, array( 'tabindex' => '2' ) ); ?>
-            	</li>
-        	</ul>
-        </form>
+        <ul>
+        	<li class="show_bar">
+            	<label for="show_bar"><?php _e('Admin Bar for logged out users', $this->textdomain); ?>:</label>
+            	<select name="wpabi_options[show_bar]" id="show_bar">
+            		<option value="1" <?php selected($this->options['show_bar'], '1') ?>>Enabled</option>
+            		<option value="0" <?php selected($this->options['show_bar'], '0') ?>>Disabled</option>
+            	</select>
+           	</li>
+           	
+        	<li class="show_form">
+            	<label for="show_form"><?php _e('Login Form in Admin Bar', $this->textdomain); ?>:</label>
+            	<select name="wpabi_options[show_form]" id="show_form">
+            		<option value="1" <?php selected($this->options['show_form'], '1') ?>>Enabled</option>
+            		<option value="0" <?php selected($this->options['show_form'], '0') ?>>Disabled</option>
+            	</select>
+           	</li>
+           	
+        	<li class="ajax_login">
+            	<label for="ajax_login"><?php _e('Ajax Login', $this->textdomain); ?>:</label>
+            	<select name="wpabi_options[ajax_login]" id="ajax_login">
+            		<option value="1" <?php selected($this->options['ajax_login'], '1') ?>>Enabled</option>
+            		<option value="0" <?php selected($this->options['ajax_login'], '0') ?>>Disabled</option>
+            	</select>
+           	</li>
+           	
+        	<li class="ajax_search">
+            	<label for="ajax_search"><?php _e('Ajax Search', $this->textdomain); ?>:</label>
+            	<select name="wpabi_options[ajax_search]" id="ajax_search">
+            		<option value="1" <?php selected($this->options['ajax_search'], '1') ?>>Enabled</option>
+            		<option value="0" <?php selected($this->options['ajax_search'], '0') ?>>Disabled</option>
+            	</select>
+           	</li>
+           	
+        	<li class="toggleme">
+            	<label for="toggleme"><?php _e('Show/Hide Button', $this->textdomain); ?>:</label>
+            	<select name="wpabi_options[toggleme]" id="toggleme">
+            		<option value="1" <?php selected($this->options['toggleme'], '1') ?>>Enabled</option>
+            		<option value="0" <?php selected($this->options['toggleme'], '0') ?>>Disabled</option>
+            	</select>
+           	</li>
+           	
+        	<li class="reg_link">
+            	<label for="reg_link"><?php _e('Registration Link in Form', $this->textdomain); ?>:</label>
+            	<select name="wpabi_options[reg_link]" id="reg_link">
+            		<option value="1" <?php selected($this->options['reg_link'], '1') ?>>Enabled</option>
+            		<option value="0" <?php selected($this->options['reg_link'], '0') ?>>Disabled</option>
+            	</select>
+			</li>
+           	
+        	<li class="custom_menu">
+            	<label for="custom_menu"><?php _e('Custom Menu Items', $this->textdomain); ?>:</label>
+            	<select name="wpabi_options[custom_menu]" id="custom_menu">
+            		<option value="1" <?php selected($this->options['custom_menu'], '1') ?>>Enabled</option>
+            		<option value="0" <?php selected($this->options['custom_menu'], '0') ?>>Disabled</option>
+            	</select>
+            	<p><em><?php _e('When you enable this option, you will get a new location added to your "Theme Locations" box on your Appearance -> Menus admin page called "Admin Bar Improved." Use this as you would any other menu location for your site. Create a new menu on the Menus admin page, and name it whatever you\'d like, just keep it easy to identify. Add whatever items to that menu that you want. Nested menu items will work as expected. When you\'re finished, select the menu you created from the select list under the "Admin Bar Improved" theme location. Once completed, (and once you refresh the page, or navigate to another page) you will see that the items you added are now in your admin bar. Good job!', $this->textdomain); ?></em></p>
+           	</li>
+           	
+           	<li><h3>Default Menu Items:</h3></li>
+           	<li class="my-account-with-avatar">
+           		<label for="my-account-with-avatar"><?php _e('My Account', $this->textdomain); ?>:</label>
+           		<select name="wpabi_options[default_items][my-account-with-avatar]" id="my-account-with-avatar">
+            		<option value="1" <?php selected($this->options['default_items']['my-account-with-avatar'], '1') ?>>Enabled</option>
+            		<option value="0" <?php selected($this->options['default_items']['my-account-with-avatar'], '0') ?>>Disabled</option>
+           		</select>
+           	</li>
+           	
+           	<li class="view-site">
+           		<label for="view-site"><?php _e('Visit Site (backend only)', $this->textdomain); ?>:</label>
+           		<select name="wpabi_options[default_items][view-site]" id="view-site">
+            		<option value="1" <?php selected($this->options['default_items']['view-site'], '1') ?>>Enabled</option>
+            		<option value="0" <?php selected($this->options['default_items']['view-site'], '0') ?>>Disabled</option>
+           		</select>
+           	</li>
+           	
+           	<li class="dashboard">
+           		<label for="dashboard"><?php _e('Dashboard (frontend only)', $this->textdomain); ?>:</label>
+           		<select name="wpabi_options[default_items][dashboard]" id="dashboard">
+            		<option value="1" <?php selected($this->options['default_items']['dashboard'], '1') ?>>Enabled</option>
+            		<option value="0" <?php selected($this->options['default_items']['dashboard'], '0') ?>>Disabled</option>
+           		</select>
+           	</li>
+           	
+           	<li class="my-blogs">
+           		<label for="my-blogs"><?php _e('My Sites', $this->textdomain); ?>:</label>
+           		<select name="wpabi_options[default_items][my-blogs]" id="my-blogs">
+            		<option value="1" <?php selected($this->options['default_items']['my-blogs'], '1') ?>>Enabled</option>
+            		<option value="0" <?php selected($this->options['default_items']['my-blogs'], '0') ?>>Disabled</option>
+           		</select>
+           	</li>
+           	
+           	<li class="new-content">
+           		<label for="new-content"><?php _e('Add New', $this->textdomain); ?>:</label>
+           		<select name="wpabi_options[default_items][new-content]" id="new-content">
+            		<option value="1" <?php selected($this->options['default_items']['new-content'], '1') ?>>Enabled</option>
+            		<option value="0" <?php selected($this->options['default_items']['new-content'], '0') ?>>Disabled</option>
+           		</select>
+           	</li>
+           	
+           	<li class="comments">
+           		<label for="comments"><?php _e('Comments', $this->textdomain); ?>:</label>
+           		<select name="wpabi_options[default_items][comments]" id="comments">
+            		<option value="1" <?php selected($this->options['default_items']['comments'], '1') ?>>Enabled</option>
+            		<option value="0" <?php selected($this->options['default_items']['comments'], '0') ?>>Disabled</option>
+           		</select>
+           	</li>
+           	
+           	<li class="appearance">
+           		<label for="appearance"><?php _e('Appearance', $this->textdomain); ?>:</label>
+           		<select name="wpabi_options[default_items][appearance]" id="appearance">
+            		<option value="1" <?php selected($this->options['default_items']['appearance'], '1') ?>>Enabled</option>
+            		<option value="0" <?php selected($this->options['default_items']['appearance'], '0') ?>>Disabled</option>
+           		</select>
+           	</li>
+           	
+           	<li class="edit">
+           		<label for="edit"><?php _e('Edit', $this->textdomain); ?>:</label>
+           		<select name="wpabi_options[default_items][edit]" id="edit">
+            		<option value="1" <?php selected($this->options['default_items']['edit'], '1') ?>>Enabled</option>
+            		<option value="0" <?php selected($this->options['default_items']['edit'], '0') ?>>Disabled</option>
+           		</select>
+           	</li>
+           	
+           	<li class="get-shortlink">
+           		<label for="get-shortlink"><?php _e('Shortlink', $this->textdomain); ?>:</label>
+           		<select name="wpabi_options[default_items][get-shortlink]" id="get-shortlink">
+            		<option value="1" <?php selected($this->options['default_items']['get-shortlink'], '1') ?>>Enabled</option>
+            		<option value="0" <?php selected($this->options['default_items']['get-shortlink'], '0') ?>>Disabled</option>
+           		</select>
+           	</li>
+           	
+           	<li class="updates">
+           		<label for="updates"><?php _e('Updates', $this->textdomain); ?>:</label>
+           		<select name="wpabi_options[default_items][updates]" id="updates">
+            		<option value="1" <?php selected($this->options['default_items']['updates'], '1') ?>>Enabled</option>
+            		<option value="0" <?php selected($this->options['default_items']['updates'], '0') ?>>Disabled</option>
+           		</select>
+           	</li>
+           	
+        	<li class="submit">
+            	<label>&nbsp;</label>
+                <?php submit_button( __('Save Options', $this->textdomain), 'primary', 'submit', false, array( 'tabindex' => '2' ) ); ?>
+           	</li>
+        </ul>
+	</form>
+</div>
         <?php
 	}
 	
@@ -358,13 +546,13 @@ class WPAdminBarImproved {
 			$content = esc_textarea(file_get_contents( $this->editing_file ));
 		}
 		?>
-		<p><?php _e("Edit the CSS/JS for the Admin Bar and the Ajax Search below.") ?></p>
+		<p><?php _e("Edit the CSS/JS for the Admin Bar and the Ajax Search below.", $this->textdomain); ?></p>
         
 		<form id="template" method="post" action="">
 			<input type="hidden" name="scrollto" id="scrollto" value="<?php echo $this->scrollto; ?>" />
 			<textarea cols="70" rows="25" name="newcontent" id="newcontent" tabindex="1"><?php echo $content ?></textarea>
 			<?php wp_nonce_field('wpabi_referrer','wpabi_referrer_nonce'); ?>
-			<?php submit_button( __( 'Update File' ), 'primary', 'submit', false, array( 'tabindex' => '2' ) ); ?>
+			<?php submit_button( __('Update File', $this->textdomain), 'primary', 'submit', false, array( 'tabindex' => '2' ) ); ?>
 		</form>
         
 		<script type="text/javascript">
@@ -398,15 +586,13 @@ class WPAdminBarImproved {
         
 		<?php
 		if (isset($_GET['a']) && isset($_GET['wpabi_edit'])) {
-			echo '<div id="message" class="updated"><p>'.__('File edited successfully.').'</p></div>';
+			echo '<div id="message" class="updated"><p>'.__('File edited successfully.', $this->textdomain).'</p></div>';
         };
 	}
-	
-	public function wpabi_options_validate($input)
-	{
-		return $input;
-	}
 }
+
+register_activation_hook(__FILE__, array('WPAdminBarImproved', 'activation_hook'));
+register_deactivation_hook(__FILE__, array('WPAdminBarImproved', 'deactivation_hook'));
 
 // Start this plugin once all other files and plugins are fully loaded
 add_action( 'plugins_loaded', create_function( '', 'global $WPAdminBarImproved; $WPAdminBarImproved = new WPAdminBarImproved();' ), 15 );

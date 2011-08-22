@@ -63,7 +63,7 @@ jQuery(document).ready(function($){
 		$('#wpabi_ajax').fadeOut(300);
 	});
 	
-	$('#adminbarlogin').submit(function(event){
+	$('.ajax_login #adminbarlogin').submit(function(event){
 		
 		event.preventDefault();
 		
@@ -78,9 +78,16 @@ jQuery(document).ready(function($){
 				wpabi_ajax: 'true'
 			},
 			function(data){
-				if(data != 'error')
+				switch(data)
 				{
-					$('#wpadminbar').html(data);
+					case 'incorrect_password':
+						alert('The password you entered is incorrect.');
+						break;
+					case 'invalid_username':
+						alert('The username you entered is invalid.');
+						break;
+					default:
+						$('#wpadminbar').html(data);
 				}
 			}
 		);
