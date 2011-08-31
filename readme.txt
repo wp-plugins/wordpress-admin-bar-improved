@@ -2,8 +2,8 @@
 Contributors: dilbert4life, electriceasel
 Tags: admin bar, top, login form, 3.1+, ajax, search
 Requires at least: 3.1
-Tested up to: 3.2.1
-Stable tag: 3.3.1
+Tested up to: 3.3-aortic-dissection
+Stable tag: 3.3.2
 
 A set of custom tweaks to the WordPress Admin Bar that was introduced in WP3.1.
 
@@ -26,7 +26,6 @@ Features:
 * Ajax Login
 * Ajax Search from form in admin bar
 * Ability to show or hide the admin bar by clicking the Show/Hide box that appears below the center of the admin bar
->>>>>>> cb625136c24b83a4c23b49288bd751f3969e7d9e
 * More to come...
 
 ToDo:
@@ -59,15 +58,11 @@ Then just visit your admin area and activate the plugin on the Plugins screen.
 
 == Frequently Asked Questions ==
 
-<<<<<<< HEAD
 = HELP! Something got messed up! = 
 
 You can reset the settings for WordPress Admin Bar Improved by simply deactivation and then re-activating the plugin through the Plugin Admin interface.
 
-= How to add menu items = 
-=======
 = How to change the settings? =
->>>>>>> cb625136c24b83a4c23b49288bd751f3969e7d9e
 
 In your WordPress admin dashboard, click the Settings -> WPABI menu item. (Taking suggestions for a better menu name.)
 
@@ -84,6 +79,9 @@ Did you try to hover over the top center of your site to see if the Show/Hide bu
 
 
 == ChangeLog ==
+
+= 3.3.2 =
+* Bugfix - fixed error where in some cases a double class would be added to the #wpadminbar, making it not work in some browsers.
 
 = 3.3.1 =
 * Added ability to manage default menu items.
