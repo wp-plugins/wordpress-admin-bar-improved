@@ -5,7 +5,7 @@
 Plugin Name:  WordPress Admin Bar Improved
 Plugin URI:   http://www.electriceasel.com/wpabi
 Description:  A set of custom tweaks to the WordPress Admin Bar that was introduced in WP3.1
-Version:      3.3.2
+Version:      3.3.3
 Author:       dilbert4life, electriceasel
 Author URI:   http://www.electriceasel.com/team-member/don-gilbert
 
@@ -29,13 +29,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **************************************************************************/
 
 class WPAdminBarImproved {
-	private static $version = '3.3.2';
+	private static $version = '3.3.3';
 	private $textdomain = 'wpabi';
 	private $css_file;
 	private $js_file;
 	private $editing_file;
 	private $scrollto;
 	private $load_js;
+	private $login_form_start;
 	private $options;
 	
 	function WPAdminBarImproved()
@@ -87,10 +88,21 @@ class WPAdminBarImproved {
 	
 	private function version_check()
 	{
+		global $wp_version;
+		
 		if(version_compare($this->options['version'], '3.3.1', 'lt'))
 		{
 			$this->deactivation_hook();
 			$this->activation_hook();
+		}
+		
+		if(version_compare($wp_version, '3.2.1', 'le'))
+		{
+			$this->login_form_start = '<div id="wpadminbar">';
+		}
+		else
+		{
+			$this->login_form_start = '<div id="wpadminbar" class="nojq">';
 		}
 	}
 	
@@ -199,7 +211,7 @@ class WPAdminBarImproved {
 	public function after_admin_bar_render()
 	{
 		$html = ob_get_clean();
-		$loginform = 'id="wpadminbar" class="nojq">';
+		$loginform = '<div id="wpadminbar" class="nojq">';
 		if($this->options['toggleme'])
 		{
 			$loginform = str_replace('class="', 'class="toggleme ', $loginform);
@@ -224,7 +236,7 @@ class WPAdminBarImproved {
 			}
 			$loginform .= '</span></form></div>';
 		}
-		$html = str_replace('id="wpadminbar" class="nojq">', $loginform, $html);
+		$html = str_replace($this->login_form_start, $loginform, $html);
 		echo $html;
 	}
 	

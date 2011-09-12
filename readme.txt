@@ -3,7 +3,7 @@ Contributors: dilbert4life, electriceasel
 Tags: admin bar, top, login form, 3.1+, ajax, search
 Requires at least: 3.1
 Tested up to: 3.3-aortic-dissection
-Stable tag: 3.3.2
+Stable tag: 3.3.3
 
 A set of custom tweaks to the WordPress Admin Bar that was introduced in WP3.1.
 
@@ -73,6 +73,9 @@ Did you try to hover over the top center of your site to see if the Show/Hide bu
 
 
 == ChangeLog ==
+
+= 3.3.3 =
+* Bugfix - login from and other features now functions properly on 3.2.1 and WP Trunk (beta versions of upcoming release)
 
 = 3.3.2 =
 * Bugfix - fixed error where in some cases a double class would be added to the #wpadminbar, making it not work in some browsers.
