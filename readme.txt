@@ -1,23 +1,21 @@
 === WordPress Admin Bar Improved ===
 Contributors: dilbert4life, electriceasel
-Tags: admin bar, top, login form, 3.1+, ajax, search
-Requires at least: 3.1
-Tested up to: 3.2.1
-Stable tag: 3.3.4
+Tags: admin bar, top, login form, 3.3+, ajax, search, toolbar
+Requires at least: 3.3
+Tested up to: 3.3
+Stable tag: 3.3.5
 
-A set of custom tweaks to the WordPress Admin Bar that was introduced in WP3.1.
+A set of custom tweaks to the WordPress Admin Bar that was introduced in WP 3.1. Since version 3.3.5 of this plugin, it is only compatible with WP 3.3 or greater, due to API changes.
 
 == Description ==
 
-This plugin has been completely re-written to interface with the WP3.1 admin bar, and adds some much requested / great features to the WP Admin Bar.
-
-**Please note that this is the last version that will work with WordPress 3.2.1 or less. The next version will require WordPress 3.3 or greater.**
+This plugin has been completely re-written to interface with the WP 3.1 admin bar, and adds some much requested / great features to the WP Admin Bar. Due to API changes in WP 3.3, this plugin is no longer compatible with earlier versions of WordPress. It requires WP 3.3 or greater. If you are using a version prior to WP 3.3, please download and install [version 3.3.4](http://downloads.wordpress.org/plugin/wordpress-admin-bar-improved.3.3.4.zip) of this plugin, as the latest version will not work for you.
 
 Check the post on this plugin over at our site, [Electric Easel](http://www.electriceasel.com/plugins/wordpress-admin-bar-improved), for instructions, updates, and other news.
 
 Features:
 
-* Easy Interface using WP3.0 Menus to add custom menu items to your Admin Bar.
+* Easy Interface using WP 3.0 Menus to add custom menu items to your Admin Bar.
 * Displays a login form on the front end of your site in the WP Admin Bar.
 * Ajax Login
 * Ajax Search from form in admin bar
@@ -68,7 +66,7 @@ In the admin area of your site, click "Menus" under the "Appearance" menu. Creat
 
 = It's not working! =
 
-Do you have WP3.1 installed?
+Do you have WP 3.3 installed?
 Have you opted to NOT show the admin bar within your user profile settings?
 Is jQuery loading properly?
 Did you try to hover over the top center of your site to see if the Show/Hide button appears?
@@ -76,8 +74,15 @@ Did you try to hover over the top center of your site to see if the Show/Hide bu
 
 == ChangeLog ==
 
+= 3.3.5 =
+* NOTE: Requires WP 3.3+.
+* Updated to work with the new admin bar API that was introduced in WP 3.3
+* Added easy access to settings from plugin admin page
+* Added check to make sure the plugin only activates on WP 3.3+
+
 = 3.3.4 =
-* Bugfix - custom menu not showing up on Appearance -> Menus page in themes that did not support them natively. 
+* NOTE: This is the version to use if you are using WP 3.2.1 or lower.
+* Bugfix - custom menu not showing up on Appearance -> Menus page in themes that did not support them natively.
 
 = 3.3.3 =
 * Bugfix - login from and other features now functions properly on 3.2.1 and WP Trunk (beta versions of upcoming release)

@@ -4,8 +4,8 @@
 
 Plugin Name:  WordPress Admin Bar Improved
 Plugin URI:   http://www.electriceasel.com/wpabi
-Description:  A set of custom tweaks to the WordPress Admin Bar that was introduced in WP3.1
-Version:      3.3.4
+Description:  A set of custom tweaks to the WordPress Admin Bar that was introduced in WP 3.1. Since version 3.3.5 of this plugin, it is only compatible with WP 3.3 or greater, due to API changes.
+Version:      3.3.5
 Author:       dilbert4life, electriceasel
 Author URI:   http://www.electriceasel.com/team-member/don-gilbert
 
@@ -29,14 +29,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **************************************************************************/
 
 class WPAdminBarImproved {
-	private static $version = '3.3.4';
+	private static $version = '3.3.5';
 	private $textdomain = 'wpabi';
 	private $css_file;
 	private $js_file;
 	private $editing_file;
 	private $scrollto;
 	private $load_js;
-	private $login_form_start;
 	private $options;
 	
 	function WPAdminBarImproved()
@@ -46,12 +45,12 @@ class WPAdminBarImproved {
 	
 	public function __construct()
 	{
-		load_plugin_textdomain('wpabi', false, dirname(plugin_basename(__FILE__)) . '/lang/');
+		load_plugin_textdomain($this->textdomain, false, dirname(plugin_basename(__FILE__)) . '/lang/');
+		
+		add_filter('plugin_action_links', array(&$this, 'plugin_action_links'), 10, 2);
 		
 		add_action('admin_init', array( &$this, 'options' ));
 		$this->options = get_option('wpabi_options');
-		
-		$this->version_check();
 		
 		$this->css_file = dirname(__FILE__) . '/wpabi.css';
 		$this->js_file  = dirname(__FILE__) . '/wpabi.js';
@@ -91,28 +90,15 @@ class WPAdminBarImproved {
 		$this->admin_page();
 	}
 	
-	private function version_check()
+	public function activation_hook()
 	{
 		global $wp_version;
 		
-		if(version_compare($this->options['version'], '3.3.1', 'lt'))
+		if(version_compare($wp_version, '3.3', 'lt'))
 		{
-			$this->deactivation_hook();
-			$this->activation_hook();
+			exit("WordPress Admin Bar Improved requires WordPress version 3.3 or greater. You are running version {$wp_version}. Why don't you head on over and <a href=\"javascript:window.parent.location='/wp-admin/update-core.php';\">update now!</a>");
 		}
 		
-		if(version_compare($wp_version, '3.2.1', 'le'))
-		{
-			$this->login_form_start = '<div id="wpadminbar">';
-		}
-		else
-		{
-			$this->login_form_start = '<div id="wpadminbar" class="nojq nojs">';
-		}
-	}
-	
-	public function activation_hook()
-	{
 		$options = get_option('wpabi_options');
 		if(!$options)
 		{
@@ -161,13 +147,22 @@ class WPAdminBarImproved {
 		return $input;
 	}
 	
+	public function plugin_action_links($links, $file)
+	{
+		if($file == plugin_basename(__FILE__))
+		{
+			array_unshift($links, '<a href="/wp-admin/options-general.php?page=wpabi">Settings</a>');
+		}
+		return $links;
+	}
+	
 	public function manage_menu_items($wp_admin_bar)
 	{				
 		foreach( (array) $this->options['default_items'] as $menu => $enabled)
 		{
 			if(!$enabled)
 			{
-				$wp_admin_bar->remove_menu($menu);
+				$wp_admin_bar->remove_node($menu);
 			}
 			
 			if(($menu === 'my-account-with-avatar') && !$enabled)
@@ -192,27 +187,18 @@ class WPAdminBarImproved {
 		$locations = get_nav_menu_locations();
 		$menu = wp_get_nav_menu_object($locations['wpabi_menu']);
 		$menu_items = (array) wp_get_nav_menu_items($menu->term_id);
-		
 		foreach($menu_items as $menu_item) {
 			$args = array(
 						  'id' => 'wpabi_'.$menu_item->ID,
 						  'title' => $menu_item->title,
 						  'href' => $menu_item->url
 						);
-			if(!empty($menu_item->menu_item_parent))
+			if($menu_item->menu_item_parent)
 			{
 				$args['parent'] = 'wpabi_'.$menu_item->menu_item_parent;
 			}
-			$wp_admin_bar->add_menu($args);
-		}
-		// Little trick to keep search at the end of the menu
-		if(isset($wp_admin_bar->menu->search))
-		{
-			$tmp_search = $wp_admin_bar->menu->search;
-			unset($wp_admin_bar->menu->search);
-			$tmp_search = array_merge($tmp_search, array('id' => 'search'));
-			$wp_admin_bar->add_menu($tmp_search);
-			unset($tmp_search);
+			$wp_admin_bar->add_node($args);
+			unset($args);
 		}
 	}
 	
@@ -224,14 +210,14 @@ class WPAdminBarImproved {
 	public function after_admin_bar_render()
 	{
 		$html = ob_get_clean();
-		$loginform = '<div id="wpadminbar" class="nojq">';
+		$loginform = '" role="navigation">';
 		if($this->options['toggleme'])
 		{
-			$loginform = str_replace('class="', 'class="toggleme ', $loginform);
+			$loginform = str_replace('" role="navigation">', ' toggleme" role="navigation">', $loginform);
 		}
 		if($this->options['ajax_login'])
 		{
-			$loginform = str_replace('class="', 'class="ajax_login ', $loginform);
+			$loginform = str_replace('" role="navigation">', ' ajax_login" role="navigation">', $loginform);
 		}
 		if(!is_user_logged_in() && $this->options['show_form']) {
 			$loginform .= '<div class="loginform">
@@ -249,7 +235,7 @@ class WPAdminBarImproved {
 			}
 			$loginform .= '</span></form></div>';
 		}
-		$html = str_replace($this->login_form_start, $loginform, $html);
+		$html = str_replace('" role="navigation">', $loginform, $html);
 		echo $html;
 	}
 	
@@ -392,7 +378,9 @@ class WPAdminBarImproved {
 		echo '<div id="wpabi">';
 		$this->nav();
 		
-		switch($_GET['wpabi_edit'])
+		$action = (isset($_GET['wpabi_edit'])) ? $_GET['wpabi_edit'] : NULL;
+		
+		switch($action)
 		{
 			case 'css':
 			case 'js':
@@ -627,11 +615,11 @@ class WPAdminBarImproved {
 			?>">WordPress Admin Bar Improved</a>
             
 			<a href="<?php echo admin_url( 'options-general.php?page=wpabi&wpabi_edit=css'); ?>" class="nav-tab<?php
-				echo ($_GET['wpabi_edit'] == 'css') ? ' nav-tab-active' : '' ; 
+				echo (isset($_GET['wpabi_edit']) && $_GET['wpabi_edit'] == 'css') ? ' nav-tab-active' : '' ; 
 			?>">CSS Editor</a>
             
 			<a href="<?php echo admin_url( 'options-general.php?page=wpabi&wpabi_edit=js'); ?>" class="nav-tab<?php
-				echo ($_GET['wpabi_edit'] == 'js') ? ' nav-tab-active' : '' ; 
+				echo (isset($_GET['wpabi_edit']) && $_GET['wpabi_edit'] == 'js') ? ' nav-tab-active' : '' ; 
 			?>">JS Editor</a>
 	    </h2>
         
